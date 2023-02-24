@@ -1,0 +1,13 @@
+# private local files
+Remote*.java
+*.txt
+# custom log properties
+log.properties
+# idea files
+.idea/*
+# target files
+*/target/*
+target/*
+# test files
+*/src/test/*
+src/test/*
