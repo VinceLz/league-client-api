@@ -10,8 +10,8 @@ import org.json.JSONObject;
 public class UserInformationLeague {
 
     private final long cuid, uid;
-    private final Object apid;
-    private final String cpid, pid, ploc;
+    private final Object apid, ploc;
+    private final String cpid, pid;
     private final boolean lp, active;
 
     public UserInformationLeague(JSONObject object) {
@@ -20,7 +20,7 @@ public class UserInformationLeague {
         this.uid = object.getLong("uid");
         this.pid = object.getString("pid");
         this.apid = object.get("apid");
-        this.ploc = object.getString("ploc");
+        this.ploc = object.get("ploc");
         this.lp = object.getBoolean("lp");
         this.active = object.getBoolean("active");
     }
@@ -45,7 +45,7 @@ public class UserInformationLeague {
         return apid;
     }
 
-    public String getPLOC() {
+    public Object getPLOC() {
         return ploc;
     }
 
