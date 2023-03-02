@@ -10,7 +10,7 @@ import org.json.JSONObject;
 
 public class UserInformation {
     private final String country, sub, originalPlatformId, preferredUsername, jti, username;
-    private final Object playerPLocale, countryAt, pPID, playerLocale, photo;
+    private final Object playerPLocale, countryAt, pPID, playerLocale;
     private final long originalAccountId, pvpnetAccountId;
     private final boolean emailVerified, phoneVerified;
     private final UserInformationLeagueRegion userInformationLeagueRegion;
@@ -20,6 +20,7 @@ public class UserInformation {
     private final UserInformationBan userInformationBan;
     private UserInformationLeagueAccount userInformationLeagueAccount;
     private UserInformationRegion userInformationRegion;
+    private Object photo;
 
     public UserInformation(JSONObject o) {
         this.country = o.getString("country");
@@ -35,7 +36,7 @@ public class UserInformation {
         this.originalPlatformId = o.getString("original_platform_id");
         this.originalAccountId = o.getLong("original_account_id");
         this.phoneVerified = o.getBoolean("phone_number_verified");
-        this.photo = o.get("photo");
+        if (o.has("photo")) this.photo = o.get("photo");
         this.preferredUsername = o.getString("preferred_username");
         this.userInformationBan = new UserInformationBan(o.getJSONObject("ban"));
         this.pPID = o.get("ppid");
