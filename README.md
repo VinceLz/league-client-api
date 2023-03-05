@@ -21,7 +21,7 @@ and the following dependency
 <dependency>
     <groupId>com.github.hawolt</groupId>
     <artifactId>league-client-api</artifactId>
-    <version>fe40d42c2c</version>
+    <version>c58898cfa3</version>
 </dependency>
 ```
 
