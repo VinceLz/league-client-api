@@ -13,13 +13,13 @@ import java.util.List;
 
 public class UserInformationBan {
     private final List<UserInformationBanRestriction> list = new ArrayList<>();
-    private final Object code, expires;
-    private final String description;
+    private Object code, expires;
+    private String description;
 
     public UserInformationBan(JSONObject o) {
-        this.code = o.get("code");
-        this.description = o.getString("desc");
-        this.expires = o.get("exp");
+        if (o.has("code")) this.code = o.get("code");
+        if (o.has("desc")) this.description = o.getString("desc");
+        if (o.has("exp")) this.expires = o.get("exp");
         JSONArray array = o.getJSONArray("restrictions");
         for (int i = 0; i < array.length(); i++) {
             list.add(new UserInformationBanRestriction(array.getJSONObject(i)));
