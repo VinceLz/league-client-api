@@ -17,6 +17,7 @@ import com.hawolt.rman.util.IRMANResource;
 import com.hawolt.yaml.IYamlSupplier;
 import com.hawolt.yaml.SystemYaml;
 import com.hawolt.yaml.YamlWrapper;
+import com.hawolt.yaml.impl.fallback.LocalYamlSupplier;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -31,8 +32,8 @@ import java.util.Set;
  **/
 
 public class YamlSupplier extends PairedValueSupplier<Platform, YamlWrapper> implements IRMANResource, IYamlSupplier {
-
     private final List<Platform> list;
+    private LocalYamlSupplier supplier;
 
     public YamlSupplier(Platform... platforms) {
         this(null, platforms);
@@ -41,6 +42,11 @@ public class YamlSupplier extends PairedValueSupplier<Platform, YamlWrapper> imp
     public YamlSupplier(IExceptionCallback callback, Platform... platforms) {
         super(callback);
         this.list = Arrays.asList(platforms);
+        try {
+            this.supplier = new LocalYamlSupplier(callback, platforms);
+        } catch (Exception e) {
+            callback.onException(e);
+        }
         this.run();
     }
 
@@ -49,27 +55,32 @@ public class YamlSupplier extends PairedValueSupplier<Platform, YamlWrapper> imp
         LeaguePatchline patchline = new LeaguePatchline(getLocation());
         List<LeagueRegionalPatchline> regionalPatchlines = patchline.load();
         for (LeagueRegionalPatchline regionalPatchline : regionalPatchlines) {
-            Platform platform = Platform.findByFriendlyName(regionalPatchline.getId());
-            if (platform == null || !list.contains(platform)) continue;
-            ManifestLoader manifestLoader = new ManifestLoader(regionalPatchline.getUrl());
-            RMANFile rmanFile = RMANFileParser.parse(manifestLoader.getManifest());
-            for (RMANFileBodyFile rmanFileBodyFile : rmanFile.getBody().getFiles()) {
-                if (getTargetFiles().contains(rmanFileBodyFile.getName())) {
-                    Set<RMANFileBodyBundle> bundles = rmanFile.getBundlesForFile(rmanFileBodyFile);
-                    List<Bundle> list = BundleDownloader.download(manifestLoader.getType(), bundles);
-                    byte[] extracted = rmanFile.extract(rmanFileBodyFile, list);
-                    JSONObject object = SystemYaml.generate(new String(extracted)).getJSONObject(platform.name());
-                    YamlWrapper wrapper = new YamlWrapper(object);
-                    Logger.debug("[cache] store: (k:{}, v:{})", rmanFileBodyFile.getName(), wrapper);
-                    put(platform, wrapper);
+            try {
+                Platform platform = Platform.findByFriendlyName(regionalPatchline.getId());
+                if (platform == null || !list.contains(platform)) continue;
+                ManifestLoader manifestLoader = new ManifestLoader(regionalPatchline.getUrl());
+                RMANFile rmanFile = RMANFileParser.parse(manifestLoader.getManifest());
+                for (RMANFileBodyFile rmanFileBodyFile : rmanFile.getBody().getFiles()) {
+                    if (getTargetFiles().contains(rmanFileBodyFile.getName())) {
+                        Set<RMANFileBodyBundle> bundles = rmanFile.getBundlesForFile(rmanFileBodyFile);
+                        List<Bundle> list = BundleDownloader.download(manifestLoader.getType(), bundles);
+                        byte[] extracted = rmanFile.extract(rmanFileBodyFile, list);
+                        JSONObject object = SystemYaml.generate(new String(extracted)).getJSONObject(platform.name());
+                        YamlWrapper wrapper = new YamlWrapper(object);
+                        Logger.debug("[cache] store: (k:{}, v:{})", rmanFileBodyFile.getName(), wrapper);
+                        put(platform, wrapper);
+                    }
                 }
+            } catch (Exception e) {
+                Logger.error("Failed to parse RMAN for {}", Platform.findByFriendlyName(regionalPatchline.getId()));
             }
         }
     }
 
     @Override
     public YamlWrapper getYamlResources(Platform platform) throws IOException {
-        return getValue(platform);
+        if (containsKey(platform)) return getValue(platform);
+        else return supplier.getValue(platform);
     }
 
     @Override

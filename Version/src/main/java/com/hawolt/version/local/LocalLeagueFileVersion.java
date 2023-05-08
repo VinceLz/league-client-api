@@ -92,6 +92,6 @@ public class LocalLeagueFileVersion extends PairedValueSupplier<Platform, Map<St
 
     @Override
     public String getVersionValue(Platform platform, String file) {
-        return getValue(platform).get(file);
+        return containsKey(platform) ? getValue(platform).get(file) : "??/";
     }
 }
