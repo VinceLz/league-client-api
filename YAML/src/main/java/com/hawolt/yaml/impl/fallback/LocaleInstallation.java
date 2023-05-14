@@ -1,6 +1,5 @@
 package com.hawolt.yaml.impl.fallback;
 
-import com.hawolt.logger.Logger;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -18,16 +17,13 @@ import java.util.List;
 
 public class LocaleInstallation {
 
-    public static File RIOT_CLIENT_SERVICES, SYSTEM_YAML;
+    public static File SYSTEM_YAML;
 
     static {
         try {
-            RIOT_CLIENT_SERVICES = getRiotClientServices();
-            SYSTEM_YAML = locateYaml(RIOT_CLIENT_SERVICES);
-        } catch (IOException e) {
-            Logger.error(e);
-            System.err.println("Unable to locate RiotClientServices.exe or system.yaml, exiting (1).");
-            System.exit(1);
+            SYSTEM_YAML = locateYaml();
+        } catch (Exception e) {
+            System.err.println("Error locating RiotClientServices.exe or system.yaml");
         }
     }
 
@@ -35,7 +31,7 @@ public class LocaleInstallation {
         File file = Paths.get(System.getenv("ALLUSERSPROFILE"))
                 .resolve(StaticConstants.RIOT_GAMES)
                 .resolve(StaticConstants.RIOT_INSTALLS_JSON).toFile();
-        if (!file.exists()) return getRiotClientServices();
+        if (!file.exists()) return null;
         JSONObject object = new JSONObject(new String(Files.readAllBytes(file.toPath())));
         List<String> list = load(new ArrayList<>(), object);
         return list.stream().map(File::new)
@@ -44,7 +40,8 @@ public class LocaleInstallation {
                 .orElseThrow(() -> new IOException("Unable to locate required file"));
     }
 
-    public static File locateYaml(File riotClientServices) throws FileNotFoundException {
+    public static File locateYaml() throws IOException {
+        File riotClientServices = getRiotClientServices();
         if (riotClientServices == null || !riotClientServices.exists()) {
             throw new FileNotFoundException("Unable to locate system.yaml");
         }
