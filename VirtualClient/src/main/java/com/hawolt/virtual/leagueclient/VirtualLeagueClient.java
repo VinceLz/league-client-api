@@ -6,6 +6,8 @@ import com.hawolt.logger.Logger;
 import com.hawolt.version.IVersionSupplier;
 import com.hawolt.virtual.leagueclient.authentication.*;
 import com.hawolt.virtual.leagueclient.refresh.IRefreshStatus;
+import com.hawolt.virtual.leagueclient.refresh.RefreshGroup;
+import com.hawolt.virtual.leagueclient.refresh.Refreshable;
 import com.hawolt.virtual.leagueclient.refresh.ScheduledRefresh;
 import com.hawolt.virtual.riotclient.VirtualRiotClient;
 import com.hawolt.virtual.riotclient.VirtualRiotClientInstance;
@@ -50,13 +52,23 @@ public class VirtualLeagueClient implements IRefreshStatus {
     }
 
     public ScheduledRefresh<?> refresh(IRefreshStatus status, IAuthentication authentication, IVersionSupplier versionSupplier, StringTokenSupplier tokenSupplier, long initial, long minutes) {
+        Refreshable refreshable = new Refreshable(status, authentication, versionSupplier, tokenSupplier);
+        return refresh(refreshable, initial, minutes);
+    }
+
+    public ScheduledRefresh<?> refresh(Refreshable refreshable, long initial, long minutes) {
+        return refresh(new RefreshGroup(refreshable), initial, minutes);
+    }
+
+    public ScheduledRefresh<?> refresh(RefreshGroup group, long initial, long minutes) {
         ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
         ScheduledFuture<?> future = service.scheduleAtFixedRate(() -> {
-            try {
-                authentication.refresh(virtualRiotClientInstance.getGateway(), versionSupplier, tokenSupplier);
-            } catch (IOException e) {
-                status.onError(e);
-                throw new RuntimeException(e);
+            for (Refreshable refreshable : group) {
+                try {
+                    refreshable.refresh(virtualRiotClientInstance);
+                } catch (IOException e) {
+                    onError(e);
+                }
             }
         }, initial, minutes, TimeUnit.MINUTES);
         return new ScheduledRefresh<>(service, future);

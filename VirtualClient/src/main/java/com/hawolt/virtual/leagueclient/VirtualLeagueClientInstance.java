@@ -13,6 +13,8 @@ import com.hawolt.version.local.LocalLeagueFileVersion;
 import com.hawolt.version.local.LocalRiotFileVersion;
 import com.hawolt.virtual.leagueclient.authentication.*;
 import com.hawolt.virtual.leagueclient.exception.LeagueException;
+import com.hawolt.virtual.leagueclient.refresh.RefreshGroup;
+import com.hawolt.virtual.leagueclient.refresh.Refreshable;
 import com.hawolt.virtual.leagueclient.userinfo.UserInformation;
 import com.hawolt.virtual.riotclient.VirtualRiotClient;
 import com.hawolt.yaml.ConfigValue;
@@ -77,7 +79,27 @@ public class VirtualLeagueClientInstance {
             }
         };
         StageAwareObject<VirtualLeagueClient> awareness = new StageAwareObject<>(callback, () -> {
-
+            if (selfRefresh) {
+                Entitlement entitlement = virtualLeagueClient.getEntitlement();
+                LocalRiotFileVersion localRiotFileVersion = virtualRiotClient.getInstance().getLocalRiotFileVersion();
+                StringTokenSupplier supplier = virtualLeagueClient.getWebOriginOAuthTokenMap().get(WebOrigin.ENTITLEMENTS);
+                RefreshGroup group = new RefreshGroup();
+                for (WebOrigin webOrigin : WebOrigin.values()) {
+                    if (webOrigin == WebOrigin.UNKNOWN) continue;
+                    OAuthToken token = virtualLeagueClient.getWebOriginOAuthTokenMap().get(webOrigin);
+                    StringTokenSupplier tokenSupplier = virtualLeagueClient.getWebOriginStringTokenSupplierMap().get(webOrigin);
+                    Refreshable refreshable = new Refreshable(virtualLeagueClient, token, localLeagueFileVersion, tokenSupplier);
+                    group.add(refreshable);
+                }
+                Refreshable refreshable = new Refreshable(virtualLeagueClient, entitlement, localRiotFileVersion, supplier);
+                try {
+                    refreshable.refresh(virtualRiotClient.getInstance());
+                } catch (IOException e) {
+                    Logger.error(e);
+                }
+                group.add(refreshable);
+                virtualLeagueClient.refresh(group, 55, 55);
+            }
             return virtualLeagueClient;
         }, 2);
         LocalRiotFileVersion localRiotFileVersion = virtualRiotClient.getInstance().getLocalRiotFileVersion();
@@ -122,7 +144,6 @@ public class VirtualLeagueClientInstance {
                                 webOriginStringTokenSupplierMap.put(webOrigin, tokenSupplier);
                                 virtualLeagueClient.setWebOriginStringTokenSupplierMap(webOriginStringTokenSupplierMap);
                                 virtualLeagueClient.setWebOriginOAuthTokenMap(webOriginOAuthTokenMap);
-                                virtualLeagueClient.refresh(virtualLeagueClient, token, localLeagueFileVersion, tokenSupplier, 55, 55);
                                 awareness.next();
                             } catch (IOException e) {
                                 callback.onStageError(e);
