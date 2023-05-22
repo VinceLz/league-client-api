@@ -1,5 +1,6 @@
 # private local files
 Remote*.java
+Proxy*.java
 *.txt
 # custom log properties
 log.properties
