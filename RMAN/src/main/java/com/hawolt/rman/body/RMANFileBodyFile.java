@@ -162,4 +162,28 @@ public class RMANFileBodyFile {
     public void addChunkId(long chunkId) {
         this.chunkIds.add(chunkId);
     }
+
+    @Override
+    public String toString() {
+        return "RMANFileBodyFile{" +
+                "chunkIds=" + chunkIds +
+                ", offset=" + offset +
+                ", tableOffset=" + tableOffset +
+                ", customNameOffset=" + customNameOffset +
+                ", fileTypeFlag=" + fileTypeFlag +
+                ", nameOffset=" + nameOffset +
+                ", structSize=" + structSize +
+                ", symlinkOffset=" + symlinkOffset +
+                ", permission=" + permission +
+                ", languageId=" + languageId +
+                ", fileSize=" + fileSize +
+                ", unknown2=" + unknown2 +
+                ", singleChunk=" + singleChunk +
+                ", unknown3=" + unknown3 +
+                ", name='" + name + '\'' +
+                ", symLink='" + symLink + '\'' +
+                ", id=" + id +
+                ", directoryId=" + directoryId +
+                '}';
+    }
 }

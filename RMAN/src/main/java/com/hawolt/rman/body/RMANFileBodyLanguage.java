@@ -48,4 +48,15 @@ public class RMANFileBodyLanguage {
     public void setId(int id) {
         this.id = id;
     }
+
+    @Override
+    public String toString() {
+        return "RMANFileBodyLanguage{" +
+                "offset=" + offset +
+                ", tableOffset=" + tableOffset +
+                ", nameOffset=" + nameOffset +
+                ", id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

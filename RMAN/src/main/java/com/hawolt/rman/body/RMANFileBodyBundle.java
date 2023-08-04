@@ -1,6 +1,7 @@
 package com.hawolt.rman.body;
 
 import com.hawolt.rman.util.Hex;
+import com.hawolt.rman.util.VTable;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ import java.util.List;
 public class RMANFileBodyBundle {
     private List<RMANFileBodyBundleChunk> chunks;
     private int offset, tableOffset, headerSize;
+    private VTable table;
     private byte[] skipped;
     private long id;
 
@@ -43,6 +45,10 @@ public class RMANFileBodyBundle {
         return id;
     }
 
+    public String getIdAsUnsignedLong() {
+        return Long.toUnsignedString(id);
+    }
+
     public void setId(long id) {
         this.id = id;
     }
@@ -65,5 +71,25 @@ public class RMANFileBodyBundle {
 
     public String getBundleName() {
         return String.join(".", Hex.from(id), "bundle");
+    }
+
+    public VTable getVTable() {
+        return table;
+    }
+
+    public void setVTable(VTable table) {
+        this.table = table;
+    }
+
+    @Override
+    public String toString() {
+        return "RMANFileBodyBundle{" +
+                "chunks=" + chunks +
+                ", offset=" + offset +
+                ", tableOffset=" + tableOffset +
+                ", headerSize=" + headerSize +
+                ", table=" + table +
+                ", id=" + getIdAsUnsignedLong() +
+                '}';
     }
 }

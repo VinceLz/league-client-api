@@ -40,4 +40,18 @@ public class RMANFileBodyBundleChunk {
     public void setId(long id) {
         this.id = id;
     }
+
+    public String getIdAsUnsignedLong() {
+        return Long.toUnsignedString(id);
+    }
+
+    @Override
+    public String toString() {
+        return "RMANFileBodyBundleChunk{" +
+                "tableOffset=" + tableOffset +
+                ", compressedSize=" + compressedSize +
+                ", uncompressedSize=" + uncompressedSize +
+                ", id=" + getIdAsUnsignedLong() +
+                '}';
+    }
 }

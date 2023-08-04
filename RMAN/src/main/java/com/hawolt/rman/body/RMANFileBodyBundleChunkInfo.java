@@ -31,4 +31,14 @@ public class RMANFileBodyBundleChunkInfo {
     public long getChunkId() {
         return chunkId;
     }
+
+    @Override
+    public String toString() {
+        return "RMANFileBodyBundleChunkInfo{" +
+                "offsetToChunk=" + offsetToChunk +
+                ", compressedSize=" + compressedSize +
+                ", bundleId=" + bundleId +
+                ", chunkId=" + chunkId +
+                '}';
+    }
 }

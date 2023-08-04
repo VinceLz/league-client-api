@@ -74,4 +74,18 @@ public class RMANFileBodyDirectory {
     public void setParentId(short parentId) {
         this.parentId = parentId;
     }
+
+    @Override
+    public String toString() {
+        return "RMANFileBodyDirectory{" +
+                "offset=" + offset +
+                ", tableOffset=" + tableOffset +
+                ", nameOffset=" + nameOffset +
+                ", directoryIdOffset=" + directoryIdOffset +
+                ", parentIdOffset=" + parentIdOffset +
+                ", parentId=" + parentId +
+                ", name='" + name + '\'' +
+                ", id=" + id +
+                '}';
+    }
 }

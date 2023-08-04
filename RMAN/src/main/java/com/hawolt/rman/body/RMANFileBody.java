@@ -62,4 +62,16 @@ public class RMANFileBody {
     public void setHeaderOffset(int headerOffset) {
         this.headerOffset = headerOffset;
     }
+
+    @Override
+    public String toString() {
+        return "RMANFileBody{" +
+                "header=" + header +
+                ", files=" + files +
+                ", bundles=" + bundles +
+                ", languages=" + languages +
+                ", directories=" + directories +
+                ", headerOffset=" + headerOffset +
+                '}';
+    }
 }

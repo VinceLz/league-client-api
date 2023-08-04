@@ -63,4 +63,17 @@ public class RMANFileBodyHeader {
     public void setUnknownOffset(int unknownOffset) {
         this.unknownOffset = unknownOffset;
     }
+
+    @Override
+    public String toString() {
+        return "RMANFileBodyHeader{" +
+                "tableOffset=" + tableOffset +
+                ", bundleListOffset=" + bundleListOffset +
+                ", languageListOffset=" + languageListOffset +
+                ", fileListOffset=" + fileListOffset +
+                ", folderListOffset=" + folderListOffset +
+                ", keyHeaderOffset=" + keyHeaderOffset +
+                ", unknownOffset=" + unknownOffset +
+                '}';
+    }
 }
