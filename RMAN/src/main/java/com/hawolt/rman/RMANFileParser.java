@@ -4,6 +4,7 @@ import com.github.luben.zstd.Zstd;
 import com.hawolt.rman.body.*;
 import com.hawolt.rman.header.RMANFileHeader;
 import com.hawolt.rman.util.RandomAccessReader;
+import com.hawolt.rman.util.VTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -194,13 +195,22 @@ public class RMANFileParser {
             reader.seek(nextBundleOffset + bundle.getOffset() - 4);
             bundle.setTableOffset(reader.readInt());
             bundle.setHeaderSize(reader.readInt());
-            bundle.setId(reader.readLong());
             if (bundle.getHeaderSize() > 12) {
                 bundle.setSkipped(reader.readBytes(bundle.getHeaderSize() - 12));
             }
+            reader.seek(nextBundleOffset + (bundle.getOffset() - bundle.getTableOffset()) - 4);
+            bundle.setVTable(VTable.read(reader));
+
+            reader.seek(nextBundleOffset + bundle.getOffset() - 4 + bundle.getVTable().getOffsets()[0]);
+            bundle.setId(reader.readLong());
+
+            reader.seek(nextBundleOffset + bundle.getOffset() - 4 + bundle.getVTable().getOffsets()[1]);
+            int chunkOffsetOffset = reader.readInt();
+            reader.seek(nextBundleOffset + bundle.getOffset() - 4 + bundle.getVTable().getOffsets()[1] + chunkOffsetOffset);
+            int chunkOffsetLength = reader.readInt();
+
             List<RMANFileBodyBundleChunk> chunks = new ArrayList<>();
-            int totalChunks = reader.readInt();
-            for (int j = 0; j < totalChunks; j++) {
+            for (int j = 0; j < chunkOffsetLength; j++) {
                 int chunkOffset = reader.readInt();
                 int nextChunkOffset = reader.position();
                 reader.seek(chunkOffset + nextChunkOffset - 4);
