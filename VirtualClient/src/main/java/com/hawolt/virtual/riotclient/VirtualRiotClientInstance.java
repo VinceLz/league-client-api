@@ -61,12 +61,19 @@ public class VirtualRiotClientInstance {
         Diffuser.add(password);
         String body = payload(username, password);
         RequestBody put = RequestBody.create(body, Constant.APPLICATION_JSON);
+        String minor = localRiotFileVersion.getVersionValue("RiotGamesApi.dll");
         Request request = new Request.Builder()
                 .url("https://auth.riotgames.com/api/v1/authorization")
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Accept", "application/json")
                 .addHeader("Cookie", cookie)
-                .addHeader("User-Agent", String.format("RiotClient/%s rso-auth (;;;)", localRiotFileVersion.getValue("RiotClient.exe")))
+                .addHeader("User-Agent",
+                        String.format(
+                                "RiotClient/%s%s rso-auth (Windows;10;;Professional, x64)",
+                                localRiotFileVersion.getVersionValue("RiotClientFoundation.dll"),
+                                minor.substring(minor.lastIndexOf('.'))
+                        )
+                )
                 .addHeader("Pragma", "no-cache")
                 .put(put)
                 .build();

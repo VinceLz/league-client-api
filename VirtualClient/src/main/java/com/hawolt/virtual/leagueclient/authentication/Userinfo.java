@@ -19,10 +19,17 @@ public class Userinfo extends StringTokenSupplier implements IAuthentication {
 
     @Override
     public String authenticate(Gateway gateway, IVersionSupplier versionSupplier, StringTokenSupplier tokenSupplier) throws IOException {
+        String minor = versionSupplier.getVersionValue("RiotGamesApi.dll");
         Request request = new Request.Builder()
                 .url(getURL())
                 .addHeader("Authorization", String.format("Bearer %s", tokenSupplier.get("access_token")))
-                .addHeader("User-Agent", String.format("RiotClient/%s rso-auth (;;;)", versionSupplier.getVersionValue("RiotClient.exe")))
+                .addHeader("User-Agent",
+                        String.format(
+                                "RiotClient/%s%s rso-auth (Windows;10;;Professional, x64)",
+                                versionSupplier.getVersionValue("RiotClientFoundation.dll"),
+                                minor.substring(minor.lastIndexOf('.'))
+                        )
+                )
                 .get()
                 .build();
         Call call = OkHttp3Client.perform(request, gateway);

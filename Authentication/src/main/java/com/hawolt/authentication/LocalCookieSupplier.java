@@ -77,11 +77,18 @@ public class LocalCookieSupplier implements ICookieSupplier {
         String nonce = generateNonce();
         String body = payload(type, nonce);
         RequestBody post = RequestBody.create(body, Constant.APPLICATION_JSON);
+        String minor = versionSupplier.getVersionValue("RiotGamesApi.dll");
         Request.Builder builder = new Request.Builder()
                 .url("https://auth.riotgames.com/api/v1/authorization")
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Accept", "application/json")
-                .addHeader("User-Agent", String.format("RiotClient/%s rso-auth (Windows;10;;Professional, x64)", versionSupplier.getVersionValue("RiotClient.exe")))
+                .addHeader("User-Agent",
+                        String.format(
+                                "RiotClient/%s%s rso-auth (Windows;10;;Professional, x64)",
+                                versionSupplier.getVersionValue("RiotClientFoundation.dll"),
+                                minor.substring(minor.lastIndexOf('.'))
+                        )
+                )
                 .addHeader("Pragma", "no-cache")
                 .post(post);
         if (__cf_bm != null) builder.addHeader("Cookie", __cf_bm);
