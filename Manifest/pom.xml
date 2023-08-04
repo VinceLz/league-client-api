@@ -21,12 +21,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20220924</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.hawolt.hawolt-core</groupId>
-            <artifactId>Logger</artifactId>
-            <version>de7d3b39cf</version>
+            <version>20230618</version>
         </dependency>
         <dependency>
             <groupId>com.hawolt</groupId>
