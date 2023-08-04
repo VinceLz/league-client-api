@@ -21,7 +21,7 @@
         <dependency>
             <groupId>com.github.hawolt.hawolt-core</groupId>
             <artifactId>Logger</artifactId>
-            <version>de7d3b39cf</version>
+            <version>af5ee5bd75</version>
         </dependency>
         <dependency>
             <groupId>com.github.luben</groupId>
