@@ -55,16 +55,14 @@ public class LocalRiotFileVersion extends PairedValueSupplier<String, String> im
                     for (int i = 0; i < table.getCount(); i++) {
                         String key = table.getString(i).getKey();
                         if (!"ProductVersion".contains(key)) continue;
-                        Logger.debug("[cache] store: (k:{}, v:{})", rmanFileBodyFile.getName(), table.getString(i).getValue());
+                        if (PairedValueSupplier.debug) {
+                            Logger.debug("[cache] store: (k:{}, v:{})", rmanFileBodyFile.getName(), table.getString(i).getValue());
+                        }
                         put(rmanFileBodyFile.getName(), table.getString(i).getValue());
                     }
                 }
             }
         }
-        String main = getValue("RiotClientFoundation.dll");
-        String riotGamesApiVersion = getValue("RiotGamesApi.dll");
-        String minor = riotGamesApiVersion.substring(riotGamesApiVersion.lastIndexOf('.') + 1);
-        put("RiotClient.exe", String.join(".", main, minor));
     }
 
     @Override

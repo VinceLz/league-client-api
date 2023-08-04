@@ -18,6 +18,7 @@ import org.boris.pecoff4j.resources.StringFileInfo;
 import org.boris.pecoff4j.resources.StringTable;
 import org.boris.pecoff4j.resources.VersionInfo;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -57,20 +58,26 @@ public class LocalLeagueFileVersion extends PairedValueSupplier<Platform, Map<St
                 if (getTargetFiles().contains(rmanFileBodyFile.getName())) {
                     byte[] extracted = LocalSupplierUtility.downloadBundle(manifestLoader, rmanFile, rmanFileBodyFile);
                     ResourceEntry[] entries = LocalSupplierUtility.getResourceEntries(extracted);
-                    for (ResourceEntry entry : entries) {
-                        byte[] data = entry.getData();
-                        VersionInfo version = ResourceParser.readVersionInfo(data);
-                        StringFileInfo strings = version.getStringFileInfo();
-                        StringTable table = strings.getTable(0);
-                        for (int i = 0; i < table.getCount(); i++) {
-                            String key = table.getString(i).getKey();
-                            if (!"ProductVersion".contains(key)) continue;
-                            if (!containsKey(platform)) put(platform, new HashMap<>());
-                            Logger.debug("[cache] store: (o:{}, k:{}, v:{})", platform, rmanFileBodyFile.getName(), table.getString(i).getValue());
-                            getValue(platform).put(rmanFileBodyFile.getName(), table.getString(i).getValue());
-                        }
-                    }
+                    handle(platform, rmanFileBodyFile.getName(), entries);
                 }
+            }
+        }
+    }
+
+    private void handle(Platform platform, String name, ResourceEntry[] entries) throws IOException {
+        for (ResourceEntry entry : entries) {
+            byte[] data = entry.getData();
+            VersionInfo version = ResourceParser.readVersionInfo(data);
+            StringFileInfo strings = version.getStringFileInfo();
+            StringTable table = strings.getTable(0);
+            for (int i = 0; i < table.getCount(); i++) {
+                String key = table.getString(i).getKey();
+                if (!"ProductVersion".contains(key)) continue;
+                if (!containsKey(platform)) put(platform, new HashMap<>());
+                if (PairedValueSupplier.debug) {
+                    Logger.debug("[cache] store: (o:{}, k:{}, v:{})", platform, name, table.getString(i).getValue());
+                }
+                getValue(platform).put(name, table.getString(i).getValue());
             }
         }
     }
@@ -92,6 +99,6 @@ public class LocalLeagueFileVersion extends PairedValueSupplier<Platform, Map<St
 
     @Override
     public String getVersionValue(Platform platform, String file) {
-        return containsKey(platform) ? getValue(platform).get(file) : "??/";
+        return getValue(platform).get(file);
     }
 }
