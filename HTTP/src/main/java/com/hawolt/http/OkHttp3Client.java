@@ -15,7 +15,7 @@ import java.net.Proxy;
  **/
 
 public class OkHttp3Client {
-
+    public static boolean debug = true;
     private static final OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
 
     private static OkHttpClient get(Gateway gateway) {
@@ -35,7 +35,7 @@ public class OkHttp3Client {
     }
 
     public static Call perform(Request request, Gateway gateway) {
-        Logger.debug("[http-out] {}", translate(request));
+        if (debug) Logger.debug("[http-out] {}", translate(request));
         return get(gateway).newCall(request);
     }
 
@@ -47,7 +47,6 @@ public class OkHttp3Client {
                 .append(request.url());
         Headers headers = request.headers();
         for (String name : headers.names()) {
-            if (name.equals("X-SESSION-AUTH")) continue;
             builder.append(System.lineSeparator()).append(name).append(": ").append(headers.get(name));
         }
         RequestBody body = request.body();
