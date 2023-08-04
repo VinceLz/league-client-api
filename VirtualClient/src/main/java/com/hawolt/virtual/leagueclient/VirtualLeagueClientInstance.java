@@ -50,14 +50,21 @@ public class VirtualLeagueClientInstance {
         this.userInformation = userInformation;
         this.yamlSupplier = yamlSupplier;
         this.selfUpdate = selfUpdate;
-        Logger.debug("[riot-client] {}", userInformation);
+    }
+
+    public CompletableFuture<VirtualLeagueClient> chat() throws LeagueException {
+        return login(true, true, false, false);
     }
 
     public CompletableFuture<VirtualLeagueClient> login() throws LeagueException {
-        return login(false, true);
+        return login(false, true, true, false);
     }
 
     public CompletableFuture<VirtualLeagueClient> login(boolean ignoreSummoner, boolean selfRefresh) throws LeagueException {
+        return login(ignoreSummoner, selfRefresh, true, false);
+    }
+
+    public CompletableFuture<VirtualLeagueClient> login(boolean ignoreSummoner, boolean selfRefresh, boolean complete, boolean minimal) throws LeagueException {
         if (!ignoreSummoner && !userInformation.isLeagueAccountAssociated()) {
             throw new LeagueException("League Account has no Summoner attached");
         }
@@ -108,25 +115,28 @@ public class VirtualLeagueClientInstance {
             Userinfo userinfo = new Userinfo();
             userinfo.authenticate(gateway, localRiotFileVersion, leagueClientSupplier);
             virtualLeagueClient.setUserInfo(userinfo);
-            Entitlement entitlement = new Entitlement();
-            entitlement.authenticate(gateway, localRiotFileVersion, leagueClientSupplier);
-            entitlement.authenticate(gateway, localRiotFileVersion, virtualRiotClient.getRiotClientSupplier());
-            virtualLeagueClient.setEntitlement(entitlement);
+
             YamlWrapper wrapper = yamlSupplier.getYamlResources(platform);
-
+            Entitlement entitlement = new Entitlement();
+            if (!minimal) {
+                entitlement.authenticate(gateway, localRiotFileVersion, leagueClientSupplier);
+                entitlement.authenticate(gateway, localRiotFileVersion, virtualRiotClient.getRiotClientSupplier());
+                virtualLeagueClient.setEntitlement(entitlement);
+                GeoPas geoPas = new GeoPas();
+                geoPas.authenticate(gateway, localLeagueFileVersion, leagueClientSupplier);
+                virtualLeagueClient.setGeoPas(geoPas);
+            }
             virtualLeagueClient.setYamlWrapper(wrapper);
-            LoginQueue loginQueue = new LoginQueue(wrapper.get(ConfigValue.PLATFORM), platform);
-            loginQueue.authenticate(gateway, localLeagueFileVersion, StringTokenSupplier.merge("queue", leagueClientSupplier, userinfo, entitlement));
-            virtualLeagueClient.setLoginQueue(loginQueue);
-            Session session = new Session(userInformation, platform, wrapper.get(ConfigValue.PLATFORM));
-            session.authenticate(gateway, localLeagueFileVersion, loginQueue);
-            virtualLeagueClient.setSession(session);
 
-            GeoPas geoPas = new GeoPas();
-            geoPas.authenticate(gateway, localLeagueFileVersion, leagueClientSupplier);
-            virtualLeagueClient.setGeoPas(geoPas);
-
-            virtualLeagueClient.refresh(virtualLeagueClient, session, localLeagueFileVersion, null, 5, 5);
+            if (complete) {
+                LoginQueue loginQueue = new LoginQueue(wrapper.get(ConfigValue.PLATFORM), platform);
+                loginQueue.authenticate(gateway, localLeagueFileVersion, StringTokenSupplier.merge("queue", leagueClientSupplier, userinfo, entitlement));
+                virtualLeagueClient.setLoginQueue(loginQueue);
+                Session session = new Session(userInformation, platform, wrapper.get(ConfigValue.PLATFORM));
+                session.authenticate(gateway, localLeagueFileVersion, loginQueue);
+                virtualLeagueClient.setSession(session);
+                virtualLeagueClient.refresh(virtualLeagueClient, session, localLeagueFileVersion, null, 5, 5);
+            }
 
             if (selfRefresh) {
                 ICookieSupplier supplier = virtualRiotClient.getInstance().getCookieSupplier();
