@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
  **/
 
 public class StringTokenSupplier implements ITokenSupplier<String> {
+    public static boolean debug = true;
     private final Map<String, String> map = new HashMap<>();
 
 
@@ -26,7 +27,7 @@ public class StringTokenSupplier implements ITokenSupplier<String> {
     public String get(String name, boolean raw) {
         String key = raw ? name : String.join(".", getSupplierName(), name);
         String value = map.getOrDefault(key, "null");
-        Logger.debug("[{}] fetching {}: {}", getSupplierName(), name, value);
+        if (debug) Logger.debug("[{}] fetching {}: {}", getSupplierName(), name, value);
         return value;
     }
 
@@ -42,7 +43,7 @@ public class StringTokenSupplier implements ITokenSupplier<String> {
 
     public void add(String k, String v, boolean raw) {
         String key = raw ? k : String.join(".", getSupplierName(), k);
-        Logger.debug("[{}] putting {}: {}", getSupplierName(), k, v);
+        if (debug) Logger.debug("[{}] putting {}: {}", getSupplierName(), k, v);
         map.put(key, v);
     }
 
@@ -59,7 +60,7 @@ public class StringTokenSupplier implements ITokenSupplier<String> {
 
     public static StringTokenSupplier merge(String name, StringTokenSupplier... suppliers) {
         String bundled = Arrays.stream(suppliers).map(StringTokenSupplier::getSupplierName).collect(Collectors.joining(","));
-        Logger.debug("[token-merge] merging [{}] into: {}", bundled, name);
+        if (debug) Logger.debug("[token-merge] merging [{}] into: {}", bundled, name);
         StringTokenSupplier supplier = new StringTokenSupplier() {
             @Override
             public String getSupplierName() {
