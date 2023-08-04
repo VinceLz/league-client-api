@@ -1,11 +1,9 @@
 package com.hawolt.yaml;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
-import com.hawolt.yaml.impl.fallback.LocaleInstallation;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -21,10 +19,6 @@ public class SystemYaml {
     public String default_region, player_bug_report_url, account_protect_url;
     public Map app, build, patcher, player_support_url, region_data, riotclient;
     public ArrayList<LinkedHashMap> products;
-
-    public static JSONObject generate() throws IOException {
-        return generate(new String(Files.readAllBytes(LocaleInstallation.SYSTEM_YAML.toPath())));
-    }
 
     public static JSONObject generate(String o) throws IOException {
         YamlReader reader = new YamlReader(o);

@@ -17,7 +17,6 @@ import com.hawolt.rman.util.IRMANResource;
 import com.hawolt.yaml.IYamlSupplier;
 import com.hawolt.yaml.SystemYaml;
 import com.hawolt.yaml.YamlWrapper;
-import com.hawolt.yaml.impl.fallback.LocalYamlSupplier;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -33,7 +32,6 @@ import java.util.Set;
 
 public class YamlSupplier extends PairedValueSupplier<Platform, YamlWrapper> implements IRMANResource, IYamlSupplier {
     private final List<Platform> list;
-    private LocalYamlSupplier supplier;
 
     public YamlSupplier(Platform... platforms) {
         this(null, platforms);
@@ -42,11 +40,6 @@ public class YamlSupplier extends PairedValueSupplier<Platform, YamlWrapper> imp
     public YamlSupplier(IExceptionCallback callback, Platform... platforms) {
         super(callback);
         this.list = Arrays.asList(platforms);
-        try {
-            this.supplier = new LocalYamlSupplier(callback, platforms);
-        } catch (Exception e) {
-            callback.onException(e);
-        }
         this.run();
     }
 
@@ -72,15 +65,14 @@ public class YamlSupplier extends PairedValueSupplier<Platform, YamlWrapper> imp
                     }
                 }
             } catch (Exception e) {
-                Logger.error("Failed to parse RMAN for {}", Platform.findByFriendlyName(regionalPatchline.getId()));
+                Logger.debug("Failed to parse RMAN for {}", Platform.findByFriendlyName(regionalPatchline.getId()));
             }
         }
     }
 
     @Override
     public YamlWrapper getYamlResources(Platform platform) throws IOException {
-        if (containsKey(platform)) return getValue(platform);
-        else return supplier.getValue(platform);
+        return getValue(platform);
     }
 
     @Override
