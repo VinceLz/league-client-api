@@ -34,7 +34,6 @@ public class VirtualRiotClient {
         this.username = username;
         this.password = password;
         this.instance = instance;
-        Logger.debug("[riot-client] {}", riotClientUser);
     }
 
     public VirtualRiotClientInstance getInstance() {
