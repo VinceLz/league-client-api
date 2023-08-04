@@ -12,6 +12,7 @@ import java.util.Map;
  **/
 
 public abstract class PairedValueSupplier<K, V> extends SchedulableRunnable {
+    public static boolean debug = true;
     private final Map<K, V> map = new HashMap<>();
 
     public PairedValueSupplier() {
