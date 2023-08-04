@@ -13,16 +13,22 @@ import java.util.List;
 
 public class UserInformationBanRestrictionGameData {
     private final List<String> additionalGameIds = new ArrayList<>();
-    private final String productName, gameLocation, triggerGameId;
+    private final String productName;
+    private Object gameLocation, triggerGameId;
 
     public UserInformationBanRestrictionGameData(JSONObject o) {
         this.productName = o.getString("productName");
-        this.gameLocation = o.getString("gameLocation");
-        this.triggerGameId = o.getString("triggerGameId");
+        if (o.has("triggerGameId")) this.triggerGameId = o.getString("triggerGameId");
+        if (o.has("gameLocation")) this.gameLocation = o.getString("gameLocation");
+        if (!o.has("additionalGameIds")) return;
         JSONArray array = o.getJSONArray("additionalGameIds");
         for (int i = 0; i < array.length(); i++) {
             additionalGameIds.add(array.getString(i));
         }
+    }
+
+    public Object getGameLocation() {
+        return gameLocation;
     }
 
     public List<String> getAdditionalGameIds() {
@@ -33,11 +39,7 @@ public class UserInformationBanRestrictionGameData {
         return productName;
     }
 
-    public String getGameLocation() {
-        return gameLocation;
-    }
-
-    public String getTriggerGameId() {
+    public Object getTriggerGameId() {
         return triggerGameId;
     }
 
