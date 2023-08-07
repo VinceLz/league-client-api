@@ -1,11 +1,11 @@
 import com.hawolt.authentication.LocalCookieSupplier;
 import com.hawolt.logger.Logger;
 import com.hawolt.manifest.RMANCache;
-import com.hawolt.virtual.leagueclient.VirtualLeagueClient;
-import com.hawolt.virtual.leagueclient.VirtualLeagueClientInstance;
+import com.hawolt.virtual.leagueclient.client.VirtualLeagueClient;
 import com.hawolt.virtual.leagueclient.exception.LeagueException;
-import com.hawolt.virtual.riotclient.VirtualRiotClient;
-import com.hawolt.virtual.riotclient.VirtualRiotClientInstance;
+import com.hawolt.virtual.leagueclient.instance.VirtualLeagueClientInstance;
+import com.hawolt.virtual.riotclient.client.VirtualRiotClient;
+import com.hawolt.virtual.riotclient.instance.VirtualRiotClientInstance;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
