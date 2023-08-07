@@ -4,7 +4,7 @@ import com.hawolt.generic.token.impl.StringTokenSupplier;
 import com.hawolt.http.Gateway;
 import com.hawolt.version.IVersionSupplier;
 import com.hawolt.virtual.leagueclient.authentication.IAuthentication;
-import com.hawolt.virtual.riotclient.VirtualRiotClientInstance;
+import com.hawolt.virtual.riotclient.instance.IVirtualRiotClientInstance;
 
 import java.io.IOException;
 
@@ -50,7 +50,7 @@ public class Refreshable {
         return authentication.refresh(gateway, versionSupplier, tokenSupplier);
     }
 
-    public String refresh(VirtualRiotClientInstance instance) throws IOException {
+    public String refresh(IVirtualRiotClientInstance instance) throws IOException {
         return authentication.refresh(instance.getGateway(), versionSupplier, tokenSupplier);
     }
 }

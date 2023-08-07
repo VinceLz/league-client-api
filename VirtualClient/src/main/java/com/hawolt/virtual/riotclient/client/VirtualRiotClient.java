@@ -1,15 +1,15 @@
-package com.hawolt.virtual.riotclient;
+package com.hawolt.virtual.riotclient.client;
 
 import com.hawolt.authentication.CookieType;
 import com.hawolt.authentication.ICookieSupplier;
 import com.hawolt.generic.data.Platform;
 import com.hawolt.generic.data.QueryTokenParser;
 import com.hawolt.generic.token.impl.StringTokenSupplier;
-import com.hawolt.logger.Logger;
-import com.hawolt.virtual.leagueclient.VirtualLeagueClientInstance;
+import com.hawolt.virtual.leagueclient.instance.VirtualLeagueClientInstance;
 import com.hawolt.virtual.leagueclient.authentication.Userinfo;
 import com.hawolt.virtual.leagueclient.exception.LeagueException;
 import com.hawolt.virtual.leagueclient.userinfo.UserInformation;
+import com.hawolt.virtual.riotclient.instance.IVirtualRiotClientInstance;
 import com.hawolt.virtual.riotclient.userinfo.RiotClientUser;
 import com.hawolt.yaml.IYamlSupplier;
 import com.hawolt.yaml.impl.YamlSupplier;
@@ -22,13 +22,13 @@ import java.io.IOException;
  * Author: Twitter @hawolt
  **/
 
-public class VirtualRiotClient {
+public class VirtualRiotClient implements IVirtualRiotClient {
     private final StringTokenSupplier riotClientSupplier;
-    private final VirtualRiotClientInstance instance;
+    private final IVirtualRiotClientInstance instance;
     private final RiotClientUser riotClientUser;
     private final String username, password;
 
-    public VirtualRiotClient(VirtualRiotClientInstance instance, String username, String password, StringTokenSupplier riotClientSupplier) {
+    public VirtualRiotClient(IVirtualRiotClientInstance instance, String username, String password, StringTokenSupplier riotClientSupplier) {
         this.riotClientUser = new RiotClientUser(riotClientSupplier.get("access_token"));
         this.riotClientSupplier = riotClientSupplier;
         this.username = username;
@@ -36,30 +36,37 @@ public class VirtualRiotClient {
         this.instance = instance;
     }
 
-    public VirtualRiotClientInstance getInstance() {
+    @Override
+    public IVirtualRiotClientInstance getInstance() {
         return instance;
     }
 
+    @Override
     public StringTokenSupplier getRiotClientSupplier() {
         return riotClientSupplier;
     }
 
+    @Override
     public RiotClientUser getRiotClientUser() {
         return riotClientUser;
     }
 
+    @Override
     public String getUsername() {
         return username;
     }
 
+    @Override
     public String getPassword() {
         return password;
     }
 
+    @Override
     public VirtualLeagueClientInstance createVirtualLeagueClientInstance() throws LeagueException, IOException {
         return createVirtualLeagueClientInstance(false);
     }
 
+    @Override
     public VirtualLeagueClientInstance createVirtualLeagueClientInstance(boolean selfUpdate) throws LeagueException, IOException {
         if (!riotClientUser.isLeagueAccountAssociated()) {
             throw new LeagueException("Riot User has not created a League of Legends account");

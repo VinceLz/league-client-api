@@ -1,4 +1,4 @@
-package com.hawolt.virtual.riotclient;
+package com.hawolt.virtual.riotclient.instance;
 
 import com.hawolt.authentication.CookieType;
 import com.hawolt.authentication.ICookieSupplier;
@@ -9,6 +9,7 @@ import com.hawolt.http.Diffuser;
 import com.hawolt.http.Gateway;
 import com.hawolt.http.OkHttp3Client;
 import com.hawolt.version.local.LocalRiotFileVersion;
+import com.hawolt.virtual.riotclient.client.VirtualRiotClient;
 import okhttp3.Call;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -20,43 +21,34 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created: 26/11/2022 13:39
+ * Created: 07/08/2023 16:44
  * Author: Twitter @hawolt
  **/
 
-public class VirtualRiotClientInstance {
+public abstract class AbstractVirtualRiotClientInstance implements IVirtualRiotClientInstance {
     private final LocalRiotFileVersion localRiotFileVersion;
     private final ICookieSupplier cookieSupplier;
     private final Gateway gateway;
 
-    public static VirtualRiotClientInstance create(ICookieSupplier cookieSupplier) {
-        return new VirtualRiotClientInstance(null, cookieSupplier, false);
-    }
-
-    public static VirtualRiotClientInstance create(ICookieSupplier cookieSupplier, boolean selfUpdate) {
-        return new VirtualRiotClientInstance(null, cookieSupplier, selfUpdate);
-    }
-
-    public static VirtualRiotClientInstance create(Gateway gateway, ICookieSupplier cookieSupplier, boolean selfUpdate) {
-        return new VirtualRiotClientInstance(gateway, cookieSupplier, selfUpdate);
-    }
-
-    private VirtualRiotClientInstance(Gateway gateway, ICookieSupplier cookieSupplier, boolean selfUpdate) {
+    public AbstractVirtualRiotClientInstance(Gateway gateway, ICookieSupplier cookieSupplier, boolean selfUpdate) {
         this.localRiotFileVersion = new LocalRiotFileVersion(Arrays.asList("RiotClientFoundation.dll", "RiotGamesApi.dll"));
         if (selfUpdate) localRiotFileVersion.schedule(15, 15, TimeUnit.MINUTES);
         this.cookieSupplier = cookieSupplier;
         this.gateway = gateway;
     }
 
-    public VirtualRiotClient login(String username, String password) throws IOException {
-        return new VirtualRiotClient(this, username, password, getRiotClientSupplier(gateway, username, password));
+    public String payload(String username, String password) {
+        JSONObject object = new JSONObject();
+        object.put("type", "auth");
+        object.put("username", username);
+        object.put("password", password);
+        object.put("remember", false);
+        object.put("language", "en_GB");
+        object.put("region", JSONObject.NULL);
+        return object.toString();
     }
 
-    public StringTokenSupplier getRiotClientSupplier(Gateway gateway, String username, String password) throws IOException {
-        String riotClientCookie = cookieSupplier.getClientCookie(localRiotFileVersion, CookieType.RIOT_CLIENT, null, gateway);
-        return QueryTokenParser.getTokens("riot-client", get(username, password, riotClientCookie, gateway));
-    }
-
+    @Override
     public String get(String username, String password, String cookie, Gateway gateway) throws IOException {
         Diffuser.add(password);
         String body = payload(username, password);
@@ -83,25 +75,28 @@ public class VirtualRiotClientInstance {
         }
     }
 
-    private static String payload(String username, String password) {
-        JSONObject object = new JSONObject();
-        object.put("type", "auth");
-        object.put("username", username);
-        object.put("password", password);
-        object.put("remember", false);
-        object.put("language", "en_GB");
-        object.put("region", JSONObject.NULL);
-        return object.toString();
+    @Override
+    public VirtualRiotClient login(String username, String password) throws IOException {
+        return new VirtualRiotClient(this, username, password, getRiotClientSupplier(gateway, username, password));
     }
 
+    @Override
+    public StringTokenSupplier getRiotClientSupplier(Gateway gateway, String username, String password) throws IOException {
+        String riotClientCookie = cookieSupplier.getClientCookie(localRiotFileVersion, CookieType.RIOT_CLIENT, null, gateway);
+        return QueryTokenParser.getTokens("riot-client", get(username, password, riotClientCookie, gateway));
+    }
+
+    @Override
     public LocalRiotFileVersion getLocalRiotFileVersion() {
         return localRiotFileVersion;
     }
 
+    @Override
     public ICookieSupplier getCookieSupplier() {
         return cookieSupplier;
     }
 
+    @Override
     public Gateway getGateway() {
         return gateway;
     }

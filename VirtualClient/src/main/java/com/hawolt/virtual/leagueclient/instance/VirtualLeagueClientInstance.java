@@ -1,4 +1,4 @@
-package com.hawolt.virtual.leagueclient;
+package com.hawolt.virtual.leagueclient.instance;
 
 import com.hawolt.authentication.ICookieSupplier;
 import com.hawolt.authentication.WebOrigin;
@@ -12,11 +12,12 @@ import com.hawolt.logger.Logger;
 import com.hawolt.version.local.LocalLeagueFileVersion;
 import com.hawolt.version.local.LocalRiotFileVersion;
 import com.hawolt.virtual.leagueclient.authentication.*;
+import com.hawolt.virtual.leagueclient.client.VirtualLeagueClient;
 import com.hawolt.virtual.leagueclient.exception.LeagueException;
 import com.hawolt.virtual.leagueclient.refresh.RefreshGroup;
 import com.hawolt.virtual.leagueclient.refresh.Refreshable;
 import com.hawolt.virtual.leagueclient.userinfo.UserInformation;
-import com.hawolt.virtual.riotclient.VirtualRiotClient;
+import com.hawolt.virtual.riotclient.client.IVirtualRiotClient;
 import com.hawolt.yaml.ConfigValue;
 import com.hawolt.yaml.IYamlSupplier;
 import com.hawolt.yaml.YamlWrapper;
@@ -33,9 +34,9 @@ import java.util.concurrent.TimeUnit;
  * Author: Twitter @hawolt
  **/
 
-public class VirtualLeagueClientInstance {
+public class VirtualLeagueClientInstance implements IVirtualLeagueClientInstance {
     private final StringTokenSupplier leagueClientSupplier;
-    private final VirtualRiotClient virtualRiotClient;
+    private final IVirtualRiotClient virtualRiotClient;
     private final UserInformation userInformation;
     private final IYamlSupplier yamlSupplier;
     private final boolean selfUpdate;
@@ -44,7 +45,7 @@ public class VirtualLeagueClientInstance {
     private String platformId;
     private Platform platform;
 
-    public VirtualLeagueClientInstance(VirtualRiotClient virtualRiotClient, UserInformation userInformation, IYamlSupplier yamlSupplier, StringTokenSupplier leagueClientSupplier, boolean selfUpdate) {
+    public VirtualLeagueClientInstance(IVirtualRiotClient virtualRiotClient, UserInformation userInformation, IYamlSupplier yamlSupplier, StringTokenSupplier leagueClientSupplier, boolean selfUpdate) {
         this.leagueClientSupplier = leagueClientSupplier;
         this.virtualRiotClient = virtualRiotClient;
         this.userInformation = userInformation;
@@ -52,18 +53,22 @@ public class VirtualLeagueClientInstance {
         this.selfUpdate = selfUpdate;
     }
 
+    @Override
     public CompletableFuture<VirtualLeagueClient> chat() throws LeagueException {
         return login(true, true, false, false);
     }
 
+    @Override
     public CompletableFuture<VirtualLeagueClient> login() throws LeagueException {
         return login(false, true, true, false);
     }
 
+    @Override
     public CompletableFuture<VirtualLeagueClient> login(boolean ignoreSummoner, boolean selfRefresh) throws LeagueException {
         return login(ignoreSummoner, selfRefresh, true, false);
     }
 
+    @Override
     public CompletableFuture<VirtualLeagueClient> login(boolean ignoreSummoner, boolean selfRefresh, boolean complete, boolean minimal) throws LeagueException {
         if (!ignoreSummoner && !userInformation.isLeagueAccountAssociated()) {
             throw new LeagueException("League Account has no Summoner attached");
@@ -170,7 +175,8 @@ public class VirtualLeagueClientInstance {
         return future;
     }
 
-    private CompletableFuture<StringTokenSupplier> prepare(Gateway gateway, ICookieSupplier cookieSupplier, WebOrigin webOrigin, Platform platform) {
+    @Override
+    public CompletableFuture<StringTokenSupplier> prepare(Gateway gateway, ICookieSupplier cookieSupplier, WebOrigin webOrigin, Platform platform) {
         CompletableFuture<StringTokenSupplier> future = new CompletableFuture<>();
         cookieSupplier.getWebCookie(localLeagueFileVersion, webOrigin, platform).whenComplete((cookie, throwable) -> {
             if (throwable != null) future.completeExceptionally(throwable);
@@ -187,6 +193,11 @@ public class VirtualLeagueClientInstance {
         return future;
     }
 
+    @Override
+    public IVirtualRiotClient getVirtualRiotClient() {
+        return virtualRiotClient;
+    }
+
     public LocalLeagueFileVersion getLocalLeagueFileVersion() {
         return localLeagueFileVersion;
     }
@@ -195,9 +206,6 @@ public class VirtualLeagueClientInstance {
         return leagueClientSupplier;
     }
 
-    public VirtualRiotClient getVirtualRiotClient() {
-        return virtualRiotClient;
-    }
 
     public UserInformation getUserInformation() {
         return userInformation;

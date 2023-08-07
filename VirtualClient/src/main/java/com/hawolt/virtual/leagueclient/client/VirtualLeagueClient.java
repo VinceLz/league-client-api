@@ -1,16 +1,17 @@
-package com.hawolt.virtual.leagueclient;
+package com.hawolt.virtual.leagueclient.client;
 
 import com.hawolt.authentication.WebOrigin;
 import com.hawolt.generic.token.impl.StringTokenSupplier;
 import com.hawolt.logger.Logger;
 import com.hawolt.version.IVersionSupplier;
 import com.hawolt.virtual.leagueclient.authentication.*;
+import com.hawolt.virtual.leagueclient.instance.IVirtualLeagueClientInstance;
 import com.hawolt.virtual.leagueclient.refresh.IRefreshStatus;
 import com.hawolt.virtual.leagueclient.refresh.RefreshGroup;
 import com.hawolt.virtual.leagueclient.refresh.Refreshable;
 import com.hawolt.virtual.leagueclient.refresh.ScheduledRefresh;
-import com.hawolt.virtual.riotclient.VirtualRiotClient;
-import com.hawolt.virtual.riotclient.VirtualRiotClientInstance;
+import com.hawolt.virtual.riotclient.client.IVirtualRiotClient;
+import com.hawolt.virtual.riotclient.instance.IVirtualRiotClientInstance;
 import com.hawolt.yaml.YamlWrapper;
 
 import java.io.IOException;
@@ -26,10 +27,9 @@ import java.util.concurrent.TimeUnit;
  **/
 
 public class VirtualLeagueClient implements IRefreshStatus {
-    private final VirtualLeagueClientInstance virtualLeagueClientInstance;
-    private final VirtualRiotClientInstance virtualRiotClientInstance;
-    private final VirtualRiotClient virtualRiotClient;
-
+    private final IVirtualLeagueClientInstance virtualLeagueClientInstance;
+    private final IVirtualRiotClientInstance virtualRiotClientInstance;
+    private final IVirtualRiotClient virtualRiotClient;
     private Map<WebOrigin, StringTokenSupplier> webOriginStringTokenSupplierMap;
     private Map<WebOrigin, OAuthToken> webOriginOAuthTokenMap;
     private YamlWrapper yamlWrapper;
@@ -40,7 +40,7 @@ public class VirtualLeagueClient implements IRefreshStatus {
     private GeoPas geopas;
     private Sipt sipt;
 
-    public VirtualLeagueClient(VirtualLeagueClientInstance virtualLeagueClientInstance) {
+    public VirtualLeagueClient(IVirtualLeagueClientInstance virtualLeagueClientInstance) {
         this.virtualRiotClient = virtualLeagueClientInstance.getVirtualRiotClient();
         this.virtualRiotClientInstance = virtualRiotClient.getInstance();
         this.virtualLeagueClientInstance = virtualLeagueClientInstance;
@@ -111,15 +111,15 @@ public class VirtualLeagueClient implements IRefreshStatus {
         this.sipt = sipt;
     }
 
-    public VirtualLeagueClientInstance getVirtualLeagueClientInstance() {
+    public IVirtualLeagueClientInstance getVirtualLeagueClientInstance() {
         return virtualLeagueClientInstance;
     }
 
-    public VirtualRiotClientInstance getVirtualRiotClientInstance() {
+    public IVirtualRiotClientInstance getVirtualRiotClientInstance() {
         return virtualRiotClientInstance;
     }
 
-    public VirtualRiotClient getVirtualRiotClient() {
+    public IVirtualRiotClient getVirtualRiotClient() {
         return virtualRiotClient;
     }
 
