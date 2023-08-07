@@ -5,8 +5,10 @@ import com.hawolt.authentication.WebOrigin;
 import com.hawolt.generic.data.Platform;
 import com.hawolt.generic.token.impl.StringTokenSupplier;
 import com.hawolt.http.Gateway;
+import com.hawolt.version.local.LocalLeagueFileVersion;
 import com.hawolt.virtual.leagueclient.client.VirtualLeagueClient;
 import com.hawolt.virtual.leagueclient.exception.LeagueException;
+import com.hawolt.virtual.leagueclient.userinfo.UserInformation;
 import com.hawolt.virtual.riotclient.client.IVirtualRiotClient;
 
 import java.util.concurrent.CompletableFuture;
@@ -27,5 +29,15 @@ public interface IVirtualLeagueClientInstance {
 
     CompletableFuture<VirtualLeagueClient> chat() throws LeagueException;
 
+    LocalLeagueFileVersion getLocalLeagueFileVersion();
+
+    StringTokenSupplier getLeagueClientSupplier();
+
     IVirtualRiotClient getVirtualRiotClient();
+
+    UserInformation getUserInformation();
+
+    String getPlatformId();
+
+    Platform getPlatform();
 }
