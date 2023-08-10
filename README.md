@@ -2,6 +2,10 @@
 
 currently this api will let you login to an account which is self managed and refreshes any tokens when required for you
 
+## Discord
+
+since this code lacks documentation the best help you can get is my knowledge, proper questions can be asked in this [discord](https://discord.gg/3wknX5gxaW) server, please note that I will not guide you to achieve something or answer beginner level questions
+
 ## Maven
 
 to use league-client-api in your maven project include the following repository
