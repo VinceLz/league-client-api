@@ -7,9 +7,9 @@ package com.hawolt.rman.body;
 
 public class RMANFileBodyBundleChunkInfo {
     private final int offsetToChunk, compressedSize;
-    private final long bundleId, chunkId;
+    private final String bundleId, chunkId;
 
-    public RMANFileBodyBundleChunkInfo(long bundleId, long chunkId, int offsetToChunk, int compressedSize) {
+    public RMANFileBodyBundleChunkInfo(String bundleId, String chunkId, int offsetToChunk, int compressedSize) {
         this.compressedSize = compressedSize;
         this.offsetToChunk = offsetToChunk;
         this.bundleId = bundleId;
@@ -24,11 +24,11 @@ public class RMANFileBodyBundleChunkInfo {
         return compressedSize;
     }
 
-    public long getBundleId() {
+    public String getBundleId() {
         return bundleId;
     }
 
-    public long getChunkId() {
+    public String getChunkId() {
         return chunkId;
     }
 

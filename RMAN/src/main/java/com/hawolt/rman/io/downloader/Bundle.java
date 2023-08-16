@@ -46,7 +46,7 @@ public class Bundle {
                 this.b = RMANCache.load(name);
             } else {
                 String uri = String.join("/", base, name);
-                Logger.debug("[rman] downloading bundle: {}", name);
+                Logger.debug("[rman] downloading bundle: {}", uri);
                 HttpsURLConnection connection = (HttpsURLConnection) new URL(uri).openConnection();
                 try (InputStream stream = connection.getInputStream()) {
                     this.b = StreamReader.from(stream);

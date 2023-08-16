@@ -1,7 +1,11 @@
 package com.hawolt.rman.body;
 
+import com.hawolt.rman.RMANFile;
+import com.hawolt.rman.util.Hex;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created: 05/01/2023 12:24
@@ -9,50 +13,46 @@ import java.util.List;
  **/
 
 public class RMANFileBodyFile {
-    private List<Long> chunkIds = new ArrayList<>();
-    private int offset, tableOffset, customNameOffset, fileTypeFlag, nameOffset, structSize, symlinkOffset,
-            permission, languageId, fileSize, unknown2, singleChunk, unknown3;
-    private String name, symLink;
-    private long id, directoryId;
+    private int filetypeFlag;
+    private String name;
+    private int structSize;
+    private String symlink;
+    private long fileId;
+    private long directoryId;
+    private int fileSize;
+    private int permissions;
+    private int languageId;
+    private int unknown2;
+    private int unknown3;
+    private List<String> chunkIds;
 
-    public int getOffset() {
-        return offset;
+
+    public String getFullFilepath(RMANFile manifest) {
+        StringBuilder output = new StringBuilder(getName());
+
+        if (getDirectoryId() == 0) {
+            return output.toString();
+        }
+
+        Optional<RMANFileBodyDirectory> maybeParent = manifest.getBody().getDirectories().stream().filter(d -> d.getDirectoryId() == getDirectoryId()).findAny();
+
+        if (maybeParent.isPresent()) {
+            String parent = maybeParent.get().getFullPath(manifest.getBody().getDirectories());
+            output.insert(0, parent + "/");
+
+            return output.toString();
+        }
+
+        System.out.println("Invalid directory id found!");
+        return "";
     }
 
-    public void setOffset(int offset) {
-        this.offset = offset;
+    public int getFiletypeFlag() {
+        return filetypeFlag;
     }
 
-    public int getTableOffset() {
-        return tableOffset;
-    }
-
-    public void setTableOffset(int tableOffset) {
-        this.tableOffset = tableOffset;
-    }
-
-    public int getCustomNameOffset() {
-        return customNameOffset;
-    }
-
-    public void setCustomNameOffset(int customNameOffset) {
-        this.customNameOffset = customNameOffset;
-    }
-
-    public int getFileTypeFlag() {
-        return fileTypeFlag;
-    }
-
-    public void setFileTypeFlag(int fileTypeFlag) {
-        this.fileTypeFlag = fileTypeFlag;
-    }
-
-    public int getNameOffset() {
-        return nameOffset;
-    }
-
-    public void setNameOffset(int nameOffset) {
-        this.nameOffset = nameOffset;
+    public void setFiletypeFlag(int filetypeFlag) {
+        this.filetypeFlag = filetypeFlag;
     }
 
     public String getName() {
@@ -71,52 +71,20 @@ public class RMANFileBodyFile {
         this.structSize = structSize;
     }
 
-    public int getSymlinkOffset() {
-        return symlinkOffset;
+    public String getSymlink() {
+        return symlink;
     }
 
-    public void setSymlinkOffset(int symlinkOffset) {
-        this.symlinkOffset = symlinkOffset;
+    public void setSymlink(String symlink) {
+        this.symlink = symlink;
     }
 
-    public int getPermission() {
-        return permission;
+    public long getFileId() {
+        return fileId;
     }
 
-    public void setPermission(int permission) {
-        this.permission = permission;
-    }
-
-    public int getLanguageId() {
-        return languageId;
-    }
-
-    public void setLanguageId(int languageId) {
-        this.languageId = languageId;
-    }
-
-    public int getUnknown2() {
-        return unknown2;
-    }
-
-    public void setUnknown2(int unknown2) {
-        this.unknown2 = unknown2;
-    }
-
-    public String getSymLink() {
-        return symLink;
-    }
-
-    public void setSymLink(String symLink) {
-        this.symLink = symLink;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
+    public void setFileId(long fileId) {
+        this.fileId = fileId;
     }
 
     public long getDirectoryId() {
@@ -135,16 +103,28 @@ public class RMANFileBodyFile {
         this.fileSize = fileSize;
     }
 
-    public int getSingleChunk() {
-        return singleChunk;
+    public int getPermissions() {
+        return permissions;
     }
 
-    public void setSingleChunk(int singleChunk) {
-        this.singleChunk = singleChunk;
+    public void setPermissions(int permissions) {
+        this.permissions = permissions;
     }
 
-    public boolean isSingleChunk() {
-        return singleChunk > 0;
+    public int getLanguageId() {
+        return languageId;
+    }
+
+    public void setLanguageId(int languageId) {
+        this.languageId = languageId;
+    }
+
+    public int getUnknown2() {
+        return unknown2;
+    }
+
+    public void setUnknown2(int unknown2) {
+        this.unknown2 = unknown2;
     }
 
     public int getUnknown3() {
@@ -155,35 +135,32 @@ public class RMANFileBodyFile {
         this.unknown3 = unknown3;
     }
 
-    public List<Long> getChunkIds() {
+    public List<String> getChunkIds() {
         return chunkIds;
     }
 
-    public void addChunkId(long chunkId) {
-        this.chunkIds.add(chunkId);
+    public void setChunkIds(List<Long> chunkIds) {
+        List<String> stringChunkIds = new ArrayList<>();
+        for (Long chunkId : chunkIds) {
+            stringChunkIds.add(Hex.from(chunkId, 16));
+        }
+        this.chunkIds = stringChunkIds;
     }
 
     @Override
     public String toString() {
         return "RMANFileBodyFile{" +
-                "chunkIds=" + chunkIds +
-                ", offset=" + offset +
-                ", tableOffset=" + tableOffset +
-                ", customNameOffset=" + customNameOffset +
-                ", fileTypeFlag=" + fileTypeFlag +
-                ", nameOffset=" + nameOffset +
-                ", structSize=" + structSize +
-                ", symlinkOffset=" + symlinkOffset +
-                ", permission=" + permission +
-                ", languageId=" + languageId +
-                ", fileSize=" + fileSize +
-                ", unknown2=" + unknown2 +
-                ", singleChunk=" + singleChunk +
-                ", unknown3=" + unknown3 +
+                "filetypeFlag=" + filetypeFlag +
                 ", name='" + name + '\'' +
-                ", symLink='" + symLink + '\'' +
-                ", id=" + id +
+                ", structSize=" + structSize +
+                ", symlink='" + symlink + '\'' +
+                ", fileId=" + fileId +
                 ", directoryId=" + directoryId +
+                ", fileSize=" + fileSize +
+                ", permissions=" + permissions +
+                ", languageId=" + languageId +
+                ", unknown2=" + unknown2 +
+                ", unknown3=" + unknown3 +
                 '}';
     }
 }

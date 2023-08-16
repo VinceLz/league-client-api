@@ -19,7 +19,7 @@ public class BundleDownloader {
     }
 
     private static Bundle downloadBlocking(ManifestType type, RMANFileBodyBundle rmanFileBodyBundle) {
-        Bundle bundle = new Bundle(type.getBundleUrl(), rmanFileBodyBundle.getBundleName());
+        Bundle bundle = new Bundle(type.getBundleUrl(), String.join(".", rmanFileBodyBundle.getBundleId(), "bundle"));
         bundle.download();
         return bundle;
     }

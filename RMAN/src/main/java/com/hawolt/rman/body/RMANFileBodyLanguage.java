@@ -6,32 +6,8 @@ package com.hawolt.rman.body;
  **/
 
 public class RMANFileBodyLanguage {
-    private int offset, tableOffset, nameOffset, id;
+    private int id;
     private String name;
-
-    public int getOffset() {
-        return offset;
-    }
-
-    public void setOffset(int offset) {
-        this.offset = offset;
-    }
-
-    public int getTableOffset() {
-        return tableOffset;
-    }
-
-    public void setTableOffset(int tableOffset) {
-        this.tableOffset = tableOffset;
-    }
-
-    public int getNameOffset() {
-        return nameOffset;
-    }
-
-    public void setNameOffset(int nameOffset) {
-        this.nameOffset = nameOffset;
-    }
 
     public String getName() {
         return name;
@@ -52,10 +28,7 @@ public class RMANFileBodyLanguage {
     @Override
     public String toString() {
         return "RMANFileBodyLanguage{" +
-                "offset=" + offset +
-                ", tableOffset=" + tableOffset +
-                ", nameOffset=" + nameOffset +
-                ", id=" + id +
+                "id=" + id +
                 ", name='" + name + '\'' +
                 '}';
     }

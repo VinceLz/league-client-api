@@ -1,4 +1,4 @@
-package com.hawolt.rman.util;
+package com.hawolt.generic.util;
 
 import java.util.Arrays;
 

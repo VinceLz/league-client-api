@@ -6,16 +6,9 @@ package com.hawolt.rman.body;
  **/
 
 public class RMANFileBodyBundleChunk {
-    private int tableOffset, compressedSize, uncompressedSize;
-    private long id;
-
-    public int getTableOffset() {
-        return tableOffset;
-    }
-
-    public void setTableOffset(int tableOffset) {
-        this.tableOffset = tableOffset;
-    }
+    private int compressedSize;
+    private int uncompressedSize;
+    private String chunkId;
 
     public int getCompressedSize() {
         return compressedSize;
@@ -33,25 +26,20 @@ public class RMANFileBodyBundleChunk {
         this.uncompressedSize = uncompressedSize;
     }
 
-    public long getId() {
-        return id;
+    public String getChunkId() {
+        return chunkId;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getIdAsUnsignedLong() {
-        return Long.toUnsignedString(id);
+    public void setChunkId(String chunkId) {
+        this.chunkId = chunkId;
     }
 
     @Override
     public String toString() {
         return "RMANFileBodyBundleChunk{" +
-                "tableOffset=" + tableOffset +
-                ", compressedSize=" + compressedSize +
+                "compressedSize=" + compressedSize +
                 ", uncompressedSize=" + uncompressedSize +
-                ", id=" + getIdAsUnsignedLong() +
+                ", chunkId='" + chunkId + '\'' +
                 '}';
     }
 }

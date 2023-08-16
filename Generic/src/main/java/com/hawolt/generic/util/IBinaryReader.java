@@ -1,4 +1,4 @@
-package com.hawolt.rman.util;
+package com.hawolt.generic.util;
 
 /**
  * Created: 01/01/2023 03:08
