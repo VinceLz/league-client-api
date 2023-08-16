@@ -8,9 +8,10 @@ import org.json.JSONObject;
  **/
 
 public class UserInformationBanRestrictionData {
-    private final UserInformationBanRestrictionGameData userInformationBanRestrictionGameData;
+    private UserInformationBanRestrictionGameData userInformationBanRestrictionGameData;
 
     public UserInformationBanRestrictionData(JSONObject o) {
+        if (!o.has("gameData")) return;
         this.userInformationBanRestrictionGameData = new UserInformationBanRestrictionGameData(o.getJSONObject("gameData"));
     }
 

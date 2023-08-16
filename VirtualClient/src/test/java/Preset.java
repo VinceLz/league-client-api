@@ -23,7 +23,7 @@ public class Preset {
         try {
             VirtualRiotClient virtualRiotClient = virtualRiotClientInstance.login(args[0], args[1]);
             VirtualLeagueClientInstance virtualLeagueClientInstance = virtualRiotClient.createVirtualLeagueClientInstance();
-            CompletableFuture<VirtualLeagueClient> virtualLeagueClientFuture = virtualLeagueClientInstance.login(true, false);
+            CompletableFuture<VirtualLeagueClient> virtualLeagueClientFuture = virtualLeagueClientInstance.login(true, true, true, false);
             virtualLeagueClientFuture.whenComplete(((virtualLeagueClient, throwable) -> {
                 if (throwable != null) throwable.printStackTrace();
                 else {

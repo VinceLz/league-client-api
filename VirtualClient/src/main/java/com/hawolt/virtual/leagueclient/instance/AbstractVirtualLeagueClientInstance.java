@@ -9,6 +9,7 @@ import com.hawolt.generic.stage.StageAwareObject;
 import com.hawolt.generic.token.impl.StringTokenSupplier;
 import com.hawolt.http.Gateway;
 import com.hawolt.logger.Logger;
+import com.hawolt.version.local.LocalGameFileVersion;
 import com.hawolt.version.local.LocalLeagueFileVersion;
 import com.hawolt.version.local.LocalRiotFileVersion;
 import com.hawolt.virtual.leagueclient.authentication.*;
@@ -25,6 +26,7 @@ import com.hawolt.yaml.YamlWrapper;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -43,6 +45,7 @@ public abstract class AbstractVirtualLeagueClientInstance implements IVirtualLea
     protected final boolean selfUpdate;
 
     private LocalLeagueFileVersion localLeagueFileVersion;
+    private LocalGameFileVersion localGameFileVersion;
     private String platformId;
     private Platform platform;
 
@@ -76,7 +79,14 @@ public abstract class AbstractVirtualLeagueClientInstance implements IVirtualLea
         }
         this.platformId = userInformation.getUserInformationLeague().getCPID();
         this.platform = Platform.valueOf(platformId);
-        this.localLeagueFileVersion = new LocalLeagueFileVersion(Arrays.asList("LeagueClientUxRender.exe", "RiotGamesApi.dll"), platform);
+        this.localGameFileVersion = new LocalGameFileVersion(platform, Collections.singletonList("League of Legends.exe"));
+        this.localLeagueFileVersion = new LocalLeagueFileVersion(
+                Arrays.asList(
+                        "League of Legends.exe",
+                        "LeagueClientUxRender.exe",
+                        "RiotGamesApi.dll"),
+                platform
+        );
         if (selfUpdate) localLeagueFileVersion.schedule(15, 15, TimeUnit.MINUTES);
         CompletableFuture<VirtualLeagueClient> future = new CompletableFuture<>();
         VirtualLeagueClient virtualLeagueClient = new VirtualLeagueClient(this);
@@ -202,6 +212,11 @@ public abstract class AbstractVirtualLeagueClientInstance implements IVirtualLea
     @Override
     public LocalLeagueFileVersion getLocalLeagueFileVersion() {
         return localLeagueFileVersion;
+    }
+
+    @Override
+    public LocalGameFileVersion getLocalGameFileVersion() {
+        return localGameFileVersion;
     }
 
     @Override

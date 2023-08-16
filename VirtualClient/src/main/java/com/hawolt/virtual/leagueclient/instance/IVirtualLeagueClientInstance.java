@@ -5,6 +5,7 @@ import com.hawolt.authentication.WebOrigin;
 import com.hawolt.generic.data.Platform;
 import com.hawolt.generic.token.impl.StringTokenSupplier;
 import com.hawolt.http.Gateway;
+import com.hawolt.version.local.LocalGameFileVersion;
 import com.hawolt.version.local.LocalLeagueFileVersion;
 import com.hawolt.virtual.leagueclient.client.VirtualLeagueClient;
 import com.hawolt.virtual.leagueclient.exception.LeagueException;
@@ -30,6 +31,8 @@ public interface IVirtualLeagueClientInstance {
     CompletableFuture<VirtualLeagueClient> chat() throws LeagueException;
 
     LocalLeagueFileVersion getLocalLeagueFileVersion();
+
+    LocalGameFileVersion getLocalGameFileVersion();
 
     StringTokenSupplier getLeagueClientSupplier();
 
