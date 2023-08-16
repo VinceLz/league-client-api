@@ -2,6 +2,7 @@ package com.hawolt.manifest;
 
 import com.hawolt.io.Core;
 import com.hawolt.logger.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -23,6 +24,20 @@ public class ManifestLoader {
         this.type = ManifestType.KEYSTONE;
         JSONObject object = keystoneFoundation.load();
         this.uri = object.getString("keystone.self_update.manifest_url");
+    }
+
+    public ManifestLoader(Sieve sieve) throws IOException {
+        this.type = ManifestType.LOL;
+        JSONObject object = sieve.load();
+        JSONArray releases = object.getJSONArray("releases");
+        JSONObject release = releases.getJSONObject(0);
+        JSONObject download = release.getJSONObject("download");
+        this.uri = download.getString("url");
+    }
+
+    public ManifestLoader(ManifestType type, String uri) {
+        this.type = type;
+        this.uri = uri;
     }
 
     public ManifestLoader(String uri) {

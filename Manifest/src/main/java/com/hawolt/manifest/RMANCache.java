@@ -29,7 +29,6 @@ public class RMANCache {
             if (files != null) {
                 for (File file : files) {
                     cache.add(file.getName());
-                    Logger.debug("[rman-cache] found cached file: {}", file.getName());
                 }
             }
         } catch (IOException e) {
