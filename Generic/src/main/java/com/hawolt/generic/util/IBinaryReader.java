@@ -5,7 +5,7 @@ package com.hawolt.generic.util;
  * Author: Twitter @hawolt
  **/
 
-public interface BinaryReader {
+public interface IBinaryReader {
     int readInt();
 
     long readLong();

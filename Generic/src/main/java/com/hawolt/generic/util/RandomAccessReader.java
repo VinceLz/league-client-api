@@ -1,5 +1,9 @@
 package com.hawolt.generic.util;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 /**
@@ -7,9 +11,17 @@ import java.util.Arrays;
  * Author: Twitter @hawolt
  **/
 
-public class RandomAccessReader implements BinaryReader {
+public class RandomAccessReader implements IBinaryReader {
     private final byte[] b;
     private int position;
+
+    public RandomAccessReader(File file) throws IOException {
+        this(file.toPath());
+    }
+
+    public RandomAccessReader(Path path) throws IOException {
+        this(Files.readAllBytes(path));
+    }
 
     public RandomAccessReader(byte[] b) {
         this.b = b;
