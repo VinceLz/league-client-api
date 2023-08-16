@@ -18,6 +18,7 @@
         <module>YAML</module>
         <module>Manifest</module>
         <module>VirtualClient</module>
+        <module>WAD</module>
     </modules>
 
     <properties>
