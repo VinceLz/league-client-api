@@ -2,12 +2,14 @@ package com.hawolt.rman.io.downloader;
 
 import com.hawolt.logger.Logger;
 import com.hawolt.manifest.RMANCache;
-import com.hawolt.rman.io.StreamReader;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Created: 05/01/2023 14:12
@@ -16,7 +18,6 @@ import java.net.URL;
 
 public class Bundle {
     private final String base, name;
-    private byte[] b;
 
     public Bundle(String base, String name) {
         this.base = base;
@@ -31,9 +32,8 @@ public class Bundle {
         return name;
     }
 
-    public byte[] getBytes() {
-        if (b == null || b.length == 0) throw new BadBundleException(name);
-        return b;
+    public byte[] getBytes() throws IOException {
+        return RMANCache.load(name);
     }
 
     public void download() {
@@ -42,17 +42,21 @@ public class Bundle {
 
     public void download(IBundleCallback callback) {
         try {
-            if (RMANCache.isCached(name)) {
-                this.b = RMANCache.load(name);
-            } else {
-                String uri = String.join("/", base, name);
-                Logger.debug("[rman] downloading bundle: {}", uri);
-                HttpsURLConnection connection = (HttpsURLConnection) new URL(uri).openConnection();
-                try (InputStream stream = connection.getInputStream()) {
-                    this.b = StreamReader.from(stream);
+            if (RMANCache.isCached(name)) return;
+            String uri = String.join("/", base, name);
+            Logger.debug("[rman] downloading bundle: {}", uri);
+            Path tmp = Files.createTempFile("download-", ".tmp");
+            HttpsURLConnection connection = (HttpsURLConnection) new URL(uri).openConnection();
+            try (InputStream stream = connection.getInputStream(); OutputStream outStream = Files.newOutputStream(tmp)) {
+                byte[] chunk = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = stream.read(chunk)) != -1) {
+                    outStream.write(chunk, 0, bytesRead);
                 }
-                RMANCache.store(name, this.b);
+            } finally {
+                connection.disconnect();
             }
+            RMANCache.store(name, tmp);
         } catch (IOException e) {
             callback.onError(e);
         }

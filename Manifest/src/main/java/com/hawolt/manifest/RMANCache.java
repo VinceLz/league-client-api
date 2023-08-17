@@ -4,10 +4,7 @@ import com.hawolt.logger.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -42,6 +39,13 @@ public class RMANCache {
 
     public static byte[] load(String name) throws IOException {
         return Files.readAllBytes(path.resolve(name));
+    }
+
+    public static void store(String name, Path origin) throws IOException {
+        if (!active || !path.toFile().exists()) return;
+        Logger.debug("[rman-cache] storing file in cache: {}", name);
+        Files.move(origin, path.resolve(name), StandardCopyOption.REPLACE_EXISTING);
+        cache.add(name);
     }
 
     public static void store(String name, byte[] b) throws IOException {
