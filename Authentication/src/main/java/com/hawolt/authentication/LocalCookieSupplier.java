@@ -34,6 +34,16 @@ import java.util.stream.Collectors;
 
 public class LocalCookieSupplier implements ICookieSupplier {
 
+    public static String build(List<String> list) {
+        if (list == null || list.isEmpty()) return null;
+        StringBuilder builder = new StringBuilder();
+        for (String string : list) {
+            String[] data = string.split(";");
+            builder.append(data[0]).append("; ");
+        }
+        return builder.toString().trim();
+    }
+
     @Override
     public String getClientCookie(IVersionSupplier versionSupplier, CookieType type, Platform platform, Gateway gateway) throws IOException {
         return createSessionCookie(versionSupplier, type, platform, gateway);
@@ -53,16 +63,6 @@ public class LocalCookieSupplier implements ICookieSupplier {
     @Override
     public String getClientCookie(CookieType type, Platform platform) throws IOException {
         throw new IOException("This call is unable to execute without a buildVersion, please use LocalCookieSupplier#getClientCookie(String, CookieType, Region, Gateway)");
-    }
-
-    private static String build(List<String> list) {
-        if (list == null || list.isEmpty()) return null;
-        StringBuilder builder = new StringBuilder();
-        for (String string : list) {
-            String[] data = string.split(";");
-            builder.append(data[0]).append("; ");
-        }
-        return builder.toString().trim();
     }
 
     public static String createSessionCookie(IVersionSupplier versionSupplier, CookieType type, Platform platform) throws IOException {
