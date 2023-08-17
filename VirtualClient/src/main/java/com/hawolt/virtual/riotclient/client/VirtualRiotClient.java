@@ -10,6 +10,7 @@ import com.hawolt.virtual.leagueclient.exception.LeagueException;
 import com.hawolt.virtual.leagueclient.instance.VirtualLeagueClientInstance;
 import com.hawolt.virtual.leagueclient.userinfo.UserInformation;
 import com.hawolt.virtual.riotclient.instance.IVirtualRiotClientInstance;
+import com.hawolt.virtual.riotclient.instance.MultiFactorSupplier;
 import com.hawolt.virtual.riotclient.userinfo.RiotClientUser;
 import com.hawolt.yaml.IYamlSupplier;
 import com.hawolt.yaml.impl.YamlSupplier;
@@ -25,12 +26,14 @@ import java.io.IOException;
 public class VirtualRiotClient implements IVirtualRiotClient {
     private final StringTokenSupplier riotClientSupplier;
     private final IVirtualRiotClientInstance instance;
+    private final MultiFactorSupplier multifactor;
     private final RiotClientUser riotClientUser;
     private final String username, password;
 
-    public VirtualRiotClient(IVirtualRiotClientInstance instance, String username, String password, StringTokenSupplier riotClientSupplier) {
+    public VirtualRiotClient(IVirtualRiotClientInstance instance, String username, String password, MultiFactorSupplier multifactor, StringTokenSupplier riotClientSupplier) {
         this.riotClientUser = new RiotClientUser(riotClientSupplier.get("access_token"));
         this.riotClientSupplier = riotClientSupplier;
+        this.multifactor = multifactor;
         this.username = username;
         this.password = password;
         this.instance = instance;
@@ -67,15 +70,20 @@ public class VirtualRiotClient implements IVirtualRiotClient {
     }
 
     @Override
+    public MultiFactorSupplier getMultifactorSupplier() {
+        return multifactor;
+    }
+
+    @Override
     public VirtualLeagueClientInstance createVirtualLeagueClientInstance(boolean selfUpdate) throws LeagueException, IOException {
         if (!riotClientUser.isLeagueAccountAssociated()) {
-            throw new LeagueException("Riot User has not created a League of Legends account");
+            throw new LeagueException(LeagueException.ErrorType.NO_LEAGUE_ACCOUNT);
         }
         Platform platform = Platform.valueOf(riotClientUser.getDataRegion());
         IYamlSupplier yamlSupplier = new YamlSupplier(platform);
         ICookieSupplier cookieSupplier = instance.getCookieSupplier();
         String leagueClientCookie = cookieSupplier.getClientCookie(instance.getLocalRiotFileVersion(), CookieType.LOL, platform, instance.getGateway());
-        StringTokenSupplier leagueClientSupplier = QueryTokenParser.getTokens("lol", instance.get(username, password, () -> "", leagueClientCookie, instance.getGateway()));
+        StringTokenSupplier leagueClientSupplier = QueryTokenParser.getTokens("lol", instance.get(username, password, multifactor, leagueClientCookie, instance.getGateway()));
         Userinfo clear = new Userinfo();
         UserInformation userInformation = new UserInformation(new JSONObject(clear.authenticate(instance.getGateway(), instance.getLocalRiotFileVersion(), riotClientSupplier)));
         return new VirtualLeagueClientInstance(this, userInformation, yamlSupplier, leagueClientSupplier, selfUpdate);

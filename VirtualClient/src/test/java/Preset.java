@@ -4,6 +4,7 @@ import com.hawolt.virtual.leagueclient.client.VirtualLeagueClient;
 import com.hawolt.virtual.leagueclient.exception.LeagueException;
 import com.hawolt.virtual.leagueclient.instance.VirtualLeagueClientInstance;
 import com.hawolt.virtual.riotclient.client.VirtualRiotClient;
+import com.hawolt.virtual.riotclient.instance.MultiFactorSupplier;
 import com.hawolt.virtual.riotclient.instance.VirtualRiotClientInstance;
 
 import java.io.IOException;
@@ -19,7 +20,7 @@ public class Preset {
         LocalCookieSupplier localCookieSupplier = new LocalCookieSupplier();
         VirtualRiotClientInstance virtualRiotClientInstance = VirtualRiotClientInstance.create(localCookieSupplier);
         try {
-            VirtualRiotClient virtualRiotClient = virtualRiotClientInstance.login(args[0], args[1], () -> "");
+            VirtualRiotClient virtualRiotClient = virtualRiotClientInstance.login(args[0], args[1], MultiFactorSupplier.blank);
             VirtualLeagueClientInstance virtualLeagueClientInstance = virtualRiotClient.createVirtualLeagueClientInstance();
             CompletableFuture<VirtualLeagueClient> virtualLeagueClientFuture = virtualLeagueClientInstance.login(true, true, true, false);
             virtualLeagueClientFuture.whenComplete(((virtualLeagueClient, throwable) -> {

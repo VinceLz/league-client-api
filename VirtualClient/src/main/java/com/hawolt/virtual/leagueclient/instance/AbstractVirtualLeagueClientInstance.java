@@ -75,7 +75,7 @@ public abstract class AbstractVirtualLeagueClientInstance implements IVirtualLea
     @Override
     public CompletableFuture<VirtualLeagueClient> login(boolean ignoreSummoner, boolean selfRefresh, boolean complete, boolean minimal) throws LeagueException {
         if (!ignoreSummoner && !userInformation.isLeagueAccountAssociated()) {
-            throw new LeagueException("League Account has no Summoner attached");
+            throw new LeagueException(LeagueException.ErrorType.NO_SUMMONER_NAME);
         }
         this.platformId = userInformation.getUserInformationLeague().getCPID();
         this.platform = Platform.valueOf(platformId);
@@ -123,6 +123,7 @@ public abstract class AbstractVirtualLeagueClientInstance implements IVirtualLea
                 group.add(refreshable);
                 virtualLeagueClient.refresh(group, 55, 55);
             }
+            virtualRiotClient.getMultifactorSupplier().clear(virtualRiotClient.getUsername(), virtualRiotClient.getPassword());
             return virtualLeagueClient;
         }, 2);
         LocalRiotFileVersion localRiotFileVersion = virtualRiotClient.getInstance().getLocalRiotFileVersion();
@@ -193,7 +194,7 @@ public abstract class AbstractVirtualLeagueClientInstance implements IVirtualLea
             if (throwable != null) future.completeExceptionally(throwable);
             else {
                 try {
-                    String raw = virtualRiotClient.getInstance().get(virtualRiotClient.getUsername(), virtualRiotClient.getPassword(), () -> "", cookie, gateway);
+                    String raw = virtualRiotClient.getInstance().get(virtualRiotClient.getUsername(), virtualRiotClient.getPassword(), getVirtualRiotClient().getMultifactorSupplier(), cookie, gateway);
                     StringTokenSupplier oauth = QueryTokenParser.getOAuthValues("lol-login", raw);
                     future.complete(oauth);
                 } catch (IOException e) {
