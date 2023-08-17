@@ -17,8 +17,6 @@ public class RMANCache {
     private static final Path path = Paths.get(System.getProperty("java.io.tmpdir")).resolve("client-rman-cache");
     private static final Set<String> cache = new HashSet<>();
 
-    public static boolean active;
-
     static {
         try {
             Files.createDirectories(path);
@@ -34,7 +32,7 @@ public class RMANCache {
     }
 
     public static boolean isCached(String name) {
-        return active && cache.contains(name);
+        return cache.contains(name);
     }
 
     public static byte[] load(String name) throws IOException {
@@ -42,14 +40,14 @@ public class RMANCache {
     }
 
     public static void store(String name, Path origin) throws IOException {
-        if (!active || !path.toFile().exists()) return;
+        if (!path.toFile().exists()) return;
         Logger.debug("[rman-cache] storing file in cache: {}", name);
         Files.move(origin, path.resolve(name), StandardCopyOption.REPLACE_EXISTING);
         cache.add(name);
     }
 
     public static void store(String name, byte[] b) throws IOException {
-        if (!active || !path.toFile().exists()) return;
+        if (!path.toFile().exists()) return;
         Logger.debug("[rman-cache] storing file in cache: {}", name);
         Files.write(path.resolve(name), b, StandardOpenOption.CREATE);
         cache.add(name);
