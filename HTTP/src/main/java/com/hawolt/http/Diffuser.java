@@ -18,7 +18,7 @@ public class Diffuser {
 
     public static String vaporize(String tarnished) {
         for (String key : new ArrayList<>(set)) {
-            if (tarnished.contains(key)) tarnished = tarnished.replaceAll(key, "\\$\\{REDACTED_USER_CRITICAL_VALUE\\}");
+            if (tarnished.contains(key)) tarnished = tarnished.replace(key, "\\${REDACTED_USER_CRITICAL_VALUE}");
         }
         return tarnished;
     }
