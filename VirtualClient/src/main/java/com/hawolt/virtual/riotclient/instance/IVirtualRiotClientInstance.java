@@ -7,6 +7,7 @@ import com.hawolt.version.local.LocalRiotFileVersion;
 import com.hawolt.virtual.riotclient.client.VirtualRiotClient;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 /**
  * Created: 07/08/2023 16:41
@@ -14,11 +15,13 @@ import java.io.IOException;
  **/
 
 public interface IVirtualRiotClientInstance {
-    StringTokenSupplier getRiotClientSupplier(Gateway gateway, String username, String password) throws IOException;
+    StringTokenSupplier getRiotClientSupplier(Gateway gateway, String username, String password, Supplier<String> multifactor) throws IOException;
 
-    String get(String username, String password, String cookie, Gateway gateway) throws IOException;
+    String get(String username, String password, Supplier<String> multifactor, String cookie, Gateway gateway) throws IOException;
 
-    VirtualRiotClient login(String username, String password) throws IOException;
+    VirtualRiotClient login(String username, String password, Supplier<String> multifactor) throws IOException;
+
+    String submit2FA(String cookie, Supplier<String> multifactor) throws IOException;
 
     LocalRiotFileVersion getLocalRiotFileVersion();
 

@@ -193,7 +193,7 @@ public abstract class AbstractVirtualLeagueClientInstance implements IVirtualLea
             if (throwable != null) future.completeExceptionally(throwable);
             else {
                 try {
-                    String raw = virtualRiotClient.getInstance().get(virtualRiotClient.getUsername(), virtualRiotClient.getPassword(), cookie, gateway);
+                    String raw = virtualRiotClient.getInstance().get(virtualRiotClient.getUsername(), virtualRiotClient.getPassword(), () -> "", cookie, gateway);
                     StringTokenSupplier oauth = QueryTokenParser.getOAuthValues("lol-login", raw);
                     future.complete(oauth);
                 } catch (IOException e) {

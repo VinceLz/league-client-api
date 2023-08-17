@@ -1,8 +1,8 @@
 package com.hawolt.virtual.riotclient.client;
 
 import com.hawolt.generic.token.impl.StringTokenSupplier;
-import com.hawolt.virtual.leagueclient.instance.VirtualLeagueClientInstance;
 import com.hawolt.virtual.leagueclient.exception.LeagueException;
+import com.hawolt.virtual.leagueclient.instance.VirtualLeagueClientInstance;
 import com.hawolt.virtual.riotclient.instance.IVirtualRiotClientInstance;
 import com.hawolt.virtual.riotclient.userinfo.RiotClientUser;
 

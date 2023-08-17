@@ -2,6 +2,7 @@ package com.hawolt.virtual.riotclient.instance;
 
 import com.hawolt.authentication.CookieType;
 import com.hawolt.authentication.ICookieSupplier;
+import com.hawolt.authentication.LocalCookieSupplier;
 import com.hawolt.generic.Constant;
 import com.hawolt.generic.data.QueryTokenParser;
 import com.hawolt.generic.token.impl.StringTokenSupplier;
@@ -19,6 +20,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 /**
  * Created: 07/08/2023 16:44
@@ -49,7 +51,7 @@ public abstract class AbstractVirtualRiotClientInstance implements IVirtualRiotC
     }
 
     @Override
-    public String get(String username, String password, String cookie, Gateway gateway) throws IOException {
+    public String get(String username, String password, Supplier<String> multifactor, String cookie, Gateway gateway) throws IOException {
         Diffuser.add(password);
         String body = payload(username, password);
         RequestBody put = RequestBody.create(body, Constant.APPLICATION_JSON);
@@ -71,19 +73,54 @@ public abstract class AbstractVirtualRiotClientInstance implements IVirtualRiotC
                 .build();
         Call call = OkHttp3Client.perform(request, gateway);
         try (Response response = call.execute()) {
+            JSONObject tmp = new JSONObject(response.body().string());
+            if (tmp.has("auth") && tmp.getString("auth").equalsIgnoreCase("multifactor")) {
+                return submit2FA(LocalCookieSupplier.build(response.headers().toMultimap().get("set-cookie")), multifactor);
+            } else {
+                return tmp.toString();
+            }
+        }
+    }
+
+    @Override
+    public String submit2FA(String cookie, Supplier<String> multifactor) throws IOException {
+        JSONObject object = new JSONObject();
+        object.put("type", "multifactor");
+        object.put("code", multifactor.get());
+        object.put("rememberDevice", false);
+        String minor = localRiotFileVersion.getVersionValue("RiotGamesApi.dll");
+        RequestBody body = RequestBody.create(object.toString(), Constant.APPLICATION_JSON);
+        Request request = new Request.Builder()
+                .url("https://auth.riotgames.com/api/v1/authorization")
+                .addHeader("Accept", "application/json")
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Cookie", cookie)
+                .addHeader("User-Agent",
+                        String.format(
+                                "RiotClient/%s%s rso-auth (Windows;10;;Professional, x64)",
+                                localRiotFileVersion.getVersionValue("RiotClientFoundation.dll"),
+                                minor.substring(minor.lastIndexOf('.'))
+                        )
+                )
+                .addHeader("Pragma", "no-cache")
+                .put(body)
+                .build();
+        Call call = OkHttp3Client.perform(request, gateway);
+        try (Response response = call.execute()) {
             return response.body().string();
         }
     }
 
     @Override
-    public VirtualRiotClient login(String username, String password) throws IOException {
-        return new VirtualRiotClient(this, username, password, getRiotClientSupplier(gateway, username, password));
+    public VirtualRiotClient login(String username, String password, Supplier<String> multifactor) throws IOException {
+        return new VirtualRiotClient(this, username, password, getRiotClientSupplier(gateway, username, password, multifactor));
     }
 
+
     @Override
-    public StringTokenSupplier getRiotClientSupplier(Gateway gateway, String username, String password) throws IOException {
+    public StringTokenSupplier getRiotClientSupplier(Gateway gateway, String username, String password, Supplier<String> multifactor) throws IOException {
         String riotClientCookie = cookieSupplier.getClientCookie(localRiotFileVersion, CookieType.RIOT_CLIENT, null, gateway);
-        return QueryTokenParser.getTokens("riot-client", get(username, password, riotClientCookie, gateway));
+        return QueryTokenParser.getTokens("riot-client", get(username, password, multifactor, riotClientCookie, gateway));
     }
 
     @Override
