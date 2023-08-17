@@ -8,12 +8,8 @@ import com.hawolt.rman.io.StreamReader;
 import com.hawolt.rman.io.downloader.BadBundleException;
 import com.hawolt.rman.io.downloader.Bundle;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,15 +67,11 @@ public class RMANFile {
 
     public void extract(RMANFileBodyFile file, List<Bundle> list, File location) throws IOException {
         List<String> chunkIds = file.getChunkIds();
-        for (int i = 0; i < chunkIds.size(); i++) {
-            String chunkId = chunkIds.get(i);
-            byte[] unzipped = load(list, chunkId);
-            Files.write(
-                    location.toPath(),
-                    unzipped,
-                    StandardOpenOption.CREATE,
-                    i != 0 ? StandardOpenOption.APPEND : StandardOpenOption.TRUNCATE_EXISTING
-            );
+        try (OutputStream stream = Files.newOutputStream(location.toPath())) {
+            for (String chunkId : chunkIds) {
+                byte[] unzipped = load(list, chunkId);
+                stream.write(unzipped);
+            }
         }
     }
 
