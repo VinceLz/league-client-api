@@ -7,6 +7,8 @@ import com.hawolt.generic.token.impl.StringTokenSupplier;
 import com.hawolt.http.Gateway;
 import com.hawolt.version.local.LocalGameFileVersion;
 import com.hawolt.version.local.LocalLeagueFileVersion;
+import com.hawolt.virtual.clientconfig.impl.PlayerClientConfig;
+import com.hawolt.virtual.clientconfig.impl.PublicClientConfig;
 import com.hawolt.virtual.leagueclient.client.VirtualLeagueClient;
 import com.hawolt.virtual.leagueclient.exception.LeagueException;
 import com.hawolt.virtual.leagueclient.userinfo.UserInformation;
@@ -35,6 +37,10 @@ public interface IVirtualLeagueClientInstance {
     LocalGameFileVersion getLocalGameFileVersion();
 
     StringTokenSupplier getLeagueClientSupplier();
+
+    PlayerClientConfig getPlayerClientConfig();
+
+    PublicClientConfig getPublicClientConfig();
 
     IVirtualRiotClient getVirtualRiotClient();
 

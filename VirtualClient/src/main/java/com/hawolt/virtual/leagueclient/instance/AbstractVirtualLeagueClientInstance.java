@@ -12,6 +12,8 @@ import com.hawolt.logger.Logger;
 import com.hawolt.version.local.LocalGameFileVersion;
 import com.hawolt.version.local.LocalLeagueFileVersion;
 import com.hawolt.version.local.LocalRiotFileVersion;
+import com.hawolt.virtual.clientconfig.impl.PlayerClientConfig;
+import com.hawolt.virtual.clientconfig.impl.PublicClientConfig;
 import com.hawolt.virtual.leagueclient.authentication.*;
 import com.hawolt.virtual.leagueclient.client.Authentication;
 import com.hawolt.virtual.leagueclient.client.VirtualLeagueClient;
@@ -46,6 +48,8 @@ public abstract class AbstractVirtualLeagueClientInstance implements IVirtualLea
 
     private LocalLeagueFileVersion localLeagueFileVersion;
     private LocalGameFileVersion localGameFileVersion;
+    private PlayerClientConfig playerClientConfig;
+    private PublicClientConfig publicClientConfig;
     private String platformId;
     private Platform platform;
 
@@ -138,6 +142,15 @@ public abstract class AbstractVirtualLeagueClientInstance implements IVirtualLea
             if (!minimal) {
                 entitlement.authenticate(gateway, localRiotFileVersion, leagueClientSupplier);
                 entitlement.authenticate(gateway, localRiotFileVersion, virtualRiotClient.getRiotClientSupplier());
+
+                StringTokenSupplier config = StringTokenSupplier.merge(
+                        "clientconfig",
+                        virtualRiotClient.getRiotClientSupplier(),
+                        entitlement
+                );
+                playerClientConfig = new PlayerClientConfig(platform, config);
+                publicClientConfig = new PublicClientConfig(platform);
+
                 virtualLeagueClient.setAuthentication(Authentication.ENTITLEMENT, entitlement);
                 GeoPas geoPas = new GeoPas();
                 geoPas.authenticate(gateway, localLeagueFileVersion, leagueClientSupplier);
@@ -223,6 +236,16 @@ public abstract class AbstractVirtualLeagueClientInstance implements IVirtualLea
     @Override
     public StringTokenSupplier getLeagueClientSupplier() {
         return leagueClientSupplier;
+    }
+
+    @Override
+    public PlayerClientConfig getPlayerClientConfig() {
+        return playerClientConfig;
+    }
+
+    @Override
+    public PublicClientConfig getPublicClientConfig() {
+        return publicClientConfig;
     }
 
     @Override
